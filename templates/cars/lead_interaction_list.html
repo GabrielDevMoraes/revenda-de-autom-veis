@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meus Leads - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Meus Leads</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Painel do Vendedor</a></li>
+                <li class="breadcrumb-item active text-primary">Meus Leads</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Lead Interactions List Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Minhas <span class="text-primary">Interações de Leads</span></h1>
+                <p class="mb-0">Acompanhe o progresso das suas negociações e interações com clientes.</p>
+            </div>
+
+            {% if lead_interactions %}
+                <div class="table-responsive wow fadeInUp" data-wow-delay="0.3s">
+                    <table class="table table-hover table-bordered rounded">
+                        <thead class="bg-secondary text-white">
+                            <tr>
+                                <th scope="col">Carro de Interesse</th>
+                                <th scope="col">Cliente/Lead</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Vendedor</th> {# Adicionado para mostrar quem é o responsável #}
+                                <th scope="col">Última Atualização</th>
+                                <th scope="col">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for interaction in lead_interactions %}
+                            <tr>
+                                <td><a href="{% url 'car_detail' interaction.carro.pk %}" class="text-primary">{{ interaction.carro.marca }} {{ interaction.carro.modelo }}</a></td>
+                                <td>
+                                    {{ interaction.cliente.nome_completo }} ({{ interaction.cliente.email }})
+                                    {% if interaction.cliente.whatsapp_number %}
+                                        {# Ícone de WhatsApp clicável #}
+                                        <a href="{% url 'initiate_whatsapp_conversation' interaction.pk %}" target="_blank" title="Iniciar conversa no WhatsApp">
+                                            <i class="fab fa-whatsapp text-success ms-2" style="font-size: 1.2em;"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if interaction.status == 'Novo Contato' %}info{% elif interaction.status == 'Em Andamento' %}primary{% elif interaction.status == 'Negociação' %}warning{% elif interaction.status == 'Fechado - Ganho' %}success{% elif interaction.status == 'Fechado - Perdido' %}danger{% elif interaction.status == 'Em Andamento (WhatsApp)' %}success{% else %}secondary{% endif %}">
+                                        {{ interaction.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if interaction.vendedor %}
+                                        {{ interaction.vendedor.get_full_name|default:interaction.vendedor.username }}
+                                    {% else %}
+                                        <span class="text-muted">Não Atribuído</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ interaction.ultima_atualizacao|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'lead_interaction_detail' interaction.pk %}" class="btn btn-sm btn-primary rounded-pill">Ver/Editar</a>
+                                    {% if not interaction.vendedor %} {# Botão Reivindicar só se não tiver vendedor #}
+                                        <form action="{% url 'claim_lead' interaction.pk %}" method="post" class="d-inline ms-2">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill">Reivindicar</button>
+                                        </form>
+                                    {% elif interaction.vendedor != request.user %} {# Se for de outro vendedor, não pode reivindicar #}
+                                        {# Opcional: botão para transferir ou apenas visualizar #}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# Paginação #}
+                {% if is_paginated %}
+                <div class="pagination justify-content-center mt-4">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary mx-1">&laquo; Anterior</a>
+                    {% endif %}
+                    <span class="current btn btn-light mx-1">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary mx-1">Próxima &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center mt-5">
+                    <p>Você não tem interações de leads registradas.</p>
+                </div>
+            {% endif %}
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'create_lead_interaction_manual' %}" class="btn btn-primary rounded-pill py-3 px-4">Criar Nova Interação de Lead Manualmente</a>
+            </div>
+        </div>
+    </div>
+    <!-- Lead Interactions List End -->
+{% endblock %}

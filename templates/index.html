@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Início - Cental{% endblock %}
+
+{% block content %}
+    <!-- Carousel Start -->
+    <div class="header-carousel">
+        <div id="carouselId" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+            <ol class="carousel-indicators">
+                <li data-bs-target="#carouselId" data-bs-slide-to="0" class="active" aria-current="true" aria-label="First slide"></li>
+                <li data-bs-target="#carouselId" data-bs-slide-to="1" aria-label="Second slide"></li>
+            </ol>
+            <div class="carousel-inner" role="listbox">
+                <div class="carousel-item active">
+                    <img src="{% static 'img/carousel-2.jpg' %}" class="img-fluid w-100" alt="First slide"/>
+                    <div class="carousel-caption">
+                        <div class="container py-4">
+                            <div class="row g-5">
+                                <div class="col-lg-6 fadeInLeft animated" data-animation="fadeInLeft" data-delay="1s" style="animation-delay: 1s;">
+                                    <div class="bg-secondary rounded p-5">
+                                        <h4 class="text-white mb-4">ENCONTRE SEU PRÓXIMO VEÍCULO</h4>
+                                        <form action="{% url 'car_list' %}" method="GET"> {# Alterado para pesquisa #}
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <select class="form-select" aria-label="Selecione a Marca" name="brand"> {# Adicionado name="brand" #}
+                                                        <option selected>Selecione a Marca</option>
+                                                        <option value="Mercedes Benz">Mercedes Benz</option>
+                                                        <option value="Toyota">Toyota</option>
+                                                        <option value="Tesla">Tesla</option>
+                                                        <option value="Hyundai">Hyundai</option>
+                                                        <option value="Volkswagen">Volkswagen</option>
+                                                        <option value="Audi">Audi</option>
+                                                        <option value="BMW">BMW</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="input-group">
+                                                        <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
+                                                            <span class="fas fa-car"></span> <span class="ms-1">Modelo</span>
+                                                        </div>
+                                                        <input class="form-control" type="text" name="model" placeholder="Digite o Modelo do Carro" aria-label="Digite o Modelo do Carro"> {# Adicionado name="model" #}
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="input-group">
+                                                        <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
+                                                            <span class="fas fa-dollar-sign"></span><span class="ms-1">Preço Máximo</span>
+                                                        </div>
+                                                        <input class="form-control" type="number" name="max_price" placeholder="Preço Máximo" aria-label="Preço Máximo"> {# Adicionado name="max_price" #}
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button class="btn btn-light w-100 py-2" type="submit">Pesquisar Agora</button> {# Alterado texto e tipo #}
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 d-none d-lg-flex fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style="animation-delay: 1s;">
+                                    <div class="text-start">
+                                        <h1 class="display-5 text-white">Milhares de veículos esperando por você!</h1> {# Texto alterado #}
+                                        <p>Encontre o carro dos seus sonhos na Cental.</p> {# Texto alterado #}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'img/carousel-1.jpg' %}" class="img-fluid w-100" alt="Second slide"/>
+                    <div class="carousel-caption">
+                        <div class="container py-4">
+                            <div class="row g-5">
+                                <div class="col-lg-6 fadeInLeft animated" data-animation="fadeInLeft" data-delay="1s" style="animation-delay: 1s;">
+                                    <div class="bg-secondary rounded p-5">
+                                        <h4 class="text-white mb-4">ENCONTRE SEU PRÓXIMO VEÍCULO</h4> {# Alterado #}
+                                        <form action="{% url 'car_list' %}" method="GET"> {# Alterado para pesquisa #}
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <select class="form-select" aria-label="Selecione a Marca" name="brand"> {# Adicionado name="brand" #}
+                                                        <option selected>Selecione a Marca</option>
+                                                        <option value="Mercedes Benz">Mercedes Benz</option>
+                                                        <option value="Toyota">Toyota</option>
+                                                        <option value="Tesla">Tesla</option>
+                                                        <option value="Hyundai">Hyundai</option>
+                                                        <option value="Volkswagen">Volkswagen</option>
+                                                        <option value="Audi">Audi</option>
+                                                        <option value="BMW">BMW</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="input-group">
+                                                        <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
+                                                            <span class="fas fa-car"></span> <span class="ms-1">Modelo</span>
+                                                        </div>
+                                                        <input class="form-control" type="text" name="model" placeholder="Digite o Modelo do Carro" aria-label="Digite o Modelo do Carro"> {# Adicionado name="model" #}
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="input-group">
+                                                        <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
+                                                            <span class="fas fa-dollar-sign"></span><span class="ms-1">Preço Máximo</span>
+                                                        </div>
+                                                        <input class="form-control" type="number" name="max_price" placeholder="Preço Máximo" aria-label="Preço Máximo"> {# Adicionado name="max_price" #}
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button class="btn btn-light w-100 py-2" type="submit">Pesquisar Agora</button> {# Alterado texto e tipo #}
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 d-none d-lg-flex fadeInRight animated" data-animation="fadeInRight" data-delay="1s" style="animation-delay: 1s;">
+                                    <div class="text-start">
+                                        <h1 class="display-5 text-white">A melhor seleção de carros para você!</h1> {# Texto alterado #}
+                                        <p>Compre, venda ou negocie com facilidade.</p> {# Texto alterado #}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Carousel End -->
+
+    <!-- Features Start -->
+    <div class="container-fluid feature py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Recursos da <span class="text-primary">Cental</span></h1>
+                <p class="mb-0">Descubra as vantagens de usar nossa plataforma para comprar e vender veículos.
+                </p>
+            </div>
+            <div class="row g-4 align-items-center">
+                <div class="col-xl-4">
+                    <div class="row gy-4 gx-0">
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <span class="fa fa-trophy fa-2x"></span>
+                                </div>
+                                <div class="ms-4">
+                                    <h5 class="mb-3">Ampla Variedade</h5>
+                                    <p class="mb-0">Encontre desde carros populares até veículos de luxo, novos e usados.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <span class="fa fa-road fa-2x"></span>
+                                </div>
+                                <div class="ms-4">
+                                    <h5 class="mb-3">Pesquisa Inteligente</h5>
+                                    <p class="mb-0">Filtros avançados para encontrar exatamente o que você procura em segundos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
+                    <img src="{% static 'img/features-img.png' %}" class="img-fluid w-100" style="object-fit: cover;" alt="Imagem de Recursos">
+                </div>
+                <div class="col-xl-4">
+                    <div class="row gy-4 gx-0">
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="feature-item justify-content-end">
+                                <div class="text-end me-4">
+                                    <h5 class="mb-3">Anúncios Grátis</h5>
+                                    <p class="mb-0">Venda seu carro de forma rápida e eficiente, com anúncios gratuitos.</p>
+                                </div>
+                                <div class="feature-icon">
+                                    <span class="fa fa-tag fa-2x"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="feature-item justify-content-end">
+                                <div class="text-end me-4">
+                                    <h5 class="mb-3">Negociação Facilitada</h5>
+                                    <p class="mb-0">Ferramentas para você negociar diretamente com compradores e vendedores.</p>
+                                </div>
+                                <div class="feature-icon">
+                                    <span class="fa fa-handshake fa-2x"></span> {# Ícone alterado para representar negociação #}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Features End -->
+
+    {# REMOVIDO: About Start #}
+
+    <!-- Fact Counter -->
+    <div class="container-fluid counter bg-secondary py-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-thumbs-up fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">829</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Clientes Satisfeitos</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-car-alt fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">56</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Carros Anunciados</h4> {# Alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-building fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">127</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Vendas Concluídas</h4> {# Alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-handshake fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">589</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Negociações Bem-sucedidas</h4> {# Alterado #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fact Counter -->
+
+    <!-- Services Start -->
+    <div class="container-fluid service py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Serviços da <span class="text-primary">Cental</span></h1>
+                <p class="mb-0">Oferecemos uma gama completa de serviços para facilitar sua experiência de compra e venda de veículos.
+                </p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item p-4">
+                        <div class="service-icon mb-4">
+                            <i class="fa fa-tags fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <h5 class="mb-3">Anúncios Gratuitos</h5> {# Texto alterado #}
+                        <p class="mb-0">Anuncie seu veículo sem custo e alcance milhares de potenciais compradores.</p> {# Texto alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item p-4">
+                        <div class="service-icon mb-4">
+                            <i class="fa fa-search fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <h5 class="mb-3">Busca Detalhada</h5> {# Texto alterado #}
+                        <p class="mb-0">Utilize nossos filtros avançados para encontrar o carro ideal rapidamente.</p> {# Texto alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="service-item p-4">
+                        <div class="service-icon mb-4">
+                            <i class="fa fa-shield-alt fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <h5 class="mb-3">Segurança na Negociação</h5> {# Texto alterado #}
+                        <p class="mb-0">Ambiente seguro para você negociar com confiança e tranquilidade.</p> {# Texto alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item p-4">
+                        <div class="service-icon mb-4">
+                            <i class="fa fa-camera-retro fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <h5 class="mb-3">Fotos de Alta Qualidade</h5> {# Texto alterado #}
+                        <p class="mb-0">Destaque seu veículo com fotos profissionais e detalhadas.</p> {# Texto alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item p-4">
+                        <div class="service-icon mb-4">
+                            <i class="fa fa-chart-line fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <h5 class="mb-3">Estatísticas de Anúncio</h5> {# Texto alterado #}
+                        <p class="mb-0">Acompanhe o desempenho do seu anúncio com dados em tempo real.</p> {# Texto alterado #}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="service-item p-4">
+                        <div class="service-icon mb-4">
+                            <i class="fa fa-comments fa-2x"></i> {# Ícone alterado #}
+                        </div>
+                        <h5 class="mb-3">Chat Direto</h5> {# Texto alterado #}
+                        <p class="mb-0">Comunique-se diretamente com interessados ou vendedores pela plataforma.</p> {# Texto alterado #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Services End -->
+
+    <!-- Car categories Start -->
+    <div class="container-fluid categories pb-5">
+        <div class="container pb-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Veículos em <span class="text-primary">Destaque</span></h1> {# Alterado #}
+                <p class="mb-0">Confira alguns dos veículos mais recentes e populares disponíveis em nossa plataforma.
+                </p> {# Alterado #}
+            </div>
+            <div class="categories-carousel owl-carousel wow fadeInUp" data-wow-delay="0.1s">
+                {% for car in latest_cars %}
+                <div class="categories-item p-4">
+                    <div class="categories-item-inner">
+                        <div class="categories-img rounded-top">
+                            {% if car.imagem %}
+                                <img src="{{ car.imagem.url }}" class="img-fluid w-100 rounded-top" alt="{{ car.marca }} {{ car.modelo }}">
+                            {% else %}
+                                <img src="https://placehold.co/600x400/CCCCCC/333333?text=Sem+Imagem" class="img-fluid w-100 rounded-top" alt="Placeholder Car">
+                            {% endif %}
+                        </div>
+                        <div class="categories-content rounded-bottom p-4">
+                            <h4>{{ car.marca }} {{ car.modelo }}</h4>
+                            <div class="categories-review mb-4">
+                                <div class="me-3">4.5 Avaliações</div>
+                                <div class="d-flex justify-content-center text-secondary">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star text-body"></i>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="bg-white text-primary rounded-pill py-2 px-4 mb-0">R${{ car.preco_por_dia|floatformat:2 }}</h4> {# Removido "/Dia" #}
+                            </div>
+                            <div class="row gy-2 gx-0 text-center mb-4">
+                                <div class="col-4 border-end border-white">
+                                    <i class="fa fa-users text-dark"></i> <span class="text-body ms-1">{{ car.lugares }} Lugares</span>
+                                </div>
+                                <div class="col-4 border-end border-white">
+                                    <i class="fa fa-car text-dark"></i> <span class="text-body ms-1">{{ car.transmissao }}</span>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fa fa-gas-pump text-dark"></i> <span class="text-body ms-1">{{ car.combustivel }}</span>
+                                </div>
+                                <div class="col-4 border-end border-white">
+                                    <i class="fa fa-car text-dark"></i> <span class="text-body ms-1">{{ car.ano }}</span>
+                                </div>
+                                <div class="col-4 border-end border-white">
+                                    <i class="fa fa-cogs text-dark"></i> <span class="text-body ms-1">{{ car.transmissao }}</span>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fa fa-road text-dark"></i> <span class="text-body ms-1">{{ car.quilometragem_k|floatformat:0 }}K</span>
+                                </div>
+                            </div>
+                            <a href="{% url 'car_detail' car.pk %}" class="btn btn-primary rounded-pill d-flex justify-content-center py-3">Ver Detalhes</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">Nenhum carro disponível no momento.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Car categories End -->
+
+    {# REMOVIDO: Car Steps Start #}
+    {# REMOVIDO: Blog Start #}
+
+    <!-- Banner Start -->
+    <div class="container-fluid banner pb-5 wow zoomInDown" data-wow-delay="0.1s">
+        <div class="container pb-5">
+            <div class="banner-item rounded">
+                <img src="{% static 'img/banner-1.jpg' %}" class="img-fluid rounded w-100" alt="Banner">
+                <div class="banner-content">
+                    <h2 class="text-primary">Quer Comprar ou Negociar?</h2> {# Alterado #}
+                    <h1 class="text-white">Fale Conosco Agora!</h1> {# Alterado #}
+                    <p class="text-white">Não hesite e nos envie uma mensagem.</p>
+                    <div class="banner-btn">
+                        <a href="https://wa.me/01234567890" class="btn btn-secondary rounded-pill py-3 px-4 px-md-5 me-2">WhatsApp</a>
+                        <a href="{% url 'contact' %}" class="btn btn-primary rounded-pill py-3 px-4 px-md-5 ms-2">Contate-nos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Banner End -->
+
+    {# REMOVIDO: Team Start #}
+    {# REMOVIDO: Testimonial Start #}
+
+{% endblock %}

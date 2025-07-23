@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nossa Equipe - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Nossa Equipe</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="#">Páginas</a></li>
+                <li class="breadcrumb-item active text-primary">Equipe</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Team Start -->
+    <div class="container-fluid team py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Conheça Nossos <span class="text-primary">Especialistas</span></h1>
+                <p class="mb-0">Nossa equipe é formada por profissionais dedicados e experientes, prontos para oferecer o melhor suporte na sua jornada de compra ou venda de veículos.
+                </p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="team-item p-4 pt-0">
+                        <div class="team-img">
+                            <img src="{% static 'img/team-1.jpg' %}" class="img-fluid rounded w-100" alt="Membro da Equipe">
+                        </div>
+                        <div class="team-content pt-4">
+                            <h4>ANA SILVA</h4>
+                            <p>Consultora de Vendas</p>
+                            <div class="team-icon d-flex justify-content-center">
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="team-item p-4 pt-0">
+                        <div class="team-img">
+                            <img src="{% static 'img/team-2.jpg' %}" class="img-fluid rounded w-100" alt="Membro da Equipe">
+                        </div>
+                        <div class="team-content pt-4">
+                            <h4>JOÃO PEREIRA</h4>
+                            <p>Especialista em Financiamento</p>
+                            <div class="team-icon d-flex justify-content-center">
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="team-item p-4 pt-0">
+                        <div class="team-img">
+                            <img src="{% static 'img/team-3.jpg' %}" class="img-fluid rounded w-100" alt="Membro da Equipe">
+                        </div>
+                        <div class="team-content pt-4">
+                            <h4>MARIA OLIVEIRA</h4>
+                            <p>Gerente de Atendimento</p>
+                            <div class="team-icon d-flex justify-content-center">
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="team-item p-4 pt-0">
+                        <div class="team-img">
+                            <img src="{% static 'img/team-4.jpg' %}" class="img-fluid rounded w-100" alt="Membro da Equipe">
+                        </div>
+                        <div class="team-content pt-4">
+                            <h4>PEDRO SANTOS</h4>
+                            <p>Avaliação de Veículos</p>
+                            <div class="team-icon d-flex justify-content-center">
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-square btn-light rounded-circle mx-1" href=""><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Team End -->
+
+    <!-- Banner Start -->
+    <div class="container-fluid banner py-5 wow zoomInDown" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="banner-item rounded">
+                <img src="{% static 'img/banner-1.jpg' %}" class="img-fluid rounded w-100" alt="Banner">
+                <div class="banner-content">
+                    <h2 class="text-primary">Quer Comprar ou Negociar?</h2>
+                    <h1 class="text-white">Fale Conosco Agora!</h1>
+                    <p class="text-white">Não hesite e nos envie uma mensagem.</p>
+                    <div class="banner-btn">
+                        <a href="https://wa.me/01234567890" class="btn btn-secondary rounded-pill py-3 px-4 px-md-5 me-2">WhatsApp</a>
+                        <a href="{% url 'contact' %}" class="btn btn-primary rounded-pill py-3 px-4 px-md-5 ms-2">Contate-nos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Banner End -->
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Criar Lead - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Criar Nova Interação de Lead</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Painel do Vendedor</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'lead_interaction_list' %}">Meus Leads</a></li>
+                <li class="breadcrumb-item active text-primary">Criar Lead</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Create Lead Interaction Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Registrar Nova <span class="text-primary">Interação de Lead</span></h1>
+                <p class="mb-0">Preencha os detalhes para registrar uma nova interação com um cliente interessado.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="bg-secondary p-5 rounded shadow">
+                        <h4 class="text-primary mb-4">Detalhes da Interação</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            {# Mensagem de erro específica para o carro, se houver #}
+                            {% if error_message %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error_message }}
+                                </div>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="id_carro_select" class="form-label text-white">Carro de Interesse:</label>
+                                <select class="form-select" id="id_carro_select" name="car_id" required>
+                                    <option value="">Selecione um Carro</option>
+                                    {% for c in all_cars %}
+                                        <option value="{{ c.pk }}" {% if car and car.pk == c.pk %}selected{% endif %}>
+                                            {{ c.marca }} {{ c.modelo }} ({{ c.ano }}) - R${{ c.preco|floatformat:2 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_customer_name" class="form-label text-white">Nome do Cliente/Lead:</label>
+                                <input type="text" class="form-control" id="id_customer_name" name="customer_name" placeholder="Nome Completo do Cliente" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_customer_email" class="form-label text-white">Email do Cliente/Lead:</label>
+                                <input type="email" class="form-control" id="id_customer_email" name="customer_email" placeholder="email@example.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_whatsapp_number" class="form-label text-white">Número WhatsApp (Opcional):</label>
+                                <input type="text" class="form-control" id="id_whatsapp_number" name="whatsapp_number" placeholder="Ex: 5565987654321">
+                            </div>
+                            <div class="mb-3">
+                                <label for="id_initial_notes" class="form-label text-white">Notas Iniciais:</label>
+                                <textarea class="form-control" id="id_initial_notes" name="initial_notes" rows="3" placeholder="Primeiro contato, dúvidas sobre o carro, etc."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-light rounded-pill py-2 px-4 mt-3">Criar Interação</button>
+                            <a href="{% url 'lead_interaction_list' %}" class="btn btn-primary rounded-pill py-2 px-4 mt-3 ms-2">Voltar para Leads</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Create Lead Interaction End -->
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Painel de Gestão - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Painel de Gestão</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item active text-primary">Painel</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Dashboard Content Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="row g-4">
+                {# Navegação Lateral do Dashboard #}
+                <div class="col-lg-3">
+                    <div class="bg-light rounded p-4 shadow-sm">
+                        <h5 class="mb-4 text-primary">Navegação do Painel</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-light"><a href="{% url 'dashboard_home' %}" class="text-dark"><i class="fas fa-home me-2"></i> Visão Geral</a></li>
+                            {% if is_seller or is_admin_or_manager or is_inspector %}
+                                <li class="list-group-item bg-light"><a href="{% url 'seller_dashboard' %}" class="text-dark"><i class="fas fa-car me-2"></i> Meus Carros</a></li>
+                                <li class="list-group-item bg-light"><a href="{% url 'lead_interaction_list' %}" class="text-dark"><i class="fas fa-users me-2"></i> Meus Leads</a></li>
+                            {% endif %}
+                            {% if is_admin_or_manager or is_inspector %}
+                                <li class="list-group-item bg-light"><a href="{% url 'inspection_list' %}" class="text-dark"><i class="fas fa-clipboard-check me-2"></i> Vistorias</a></li>
+                                <li class="list-group-item bg-light"><a href="{% url 'car_wash_list' %}" class="text-dark"><i class="fas fa-spray-can me-2"></i> Lavagens</a></li>
+                            {% endif %}
+                            {# Botão para ver a loja #}
+                            <li class="list-group-item bg-light mt-3">
+                                <a href="{% url 'home' %}" class="btn btn-outline-primary w-100 rounded-pill"><i class="fas fa-store me-2"></i> Ver Loja</a>
+                            </li>
+                            {# Botão de Sair #}
+                            <li class="list-group-item bg-light mt-2">
+                                <form action="{% url 'logout' %}" method="post" class="d-inline w-100">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger w-100 rounded-pill"><i class="fas fa-sign-out-alt me-2"></i> Sair</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                {# Conteúdo Principal do Dashboard #}
+                <div class="col-lg-9">
+                    <div class="bg-light rounded p-4 shadow-sm">
+                        <h3 class="mb-4 text-secondary">Bem-vindo ao Painel, {{ user.username }}!</h3>
+
+                        {# Visão Geral para Administradores/Gerentes #}
+                        {% if is_admin_or_manager %}
+                            <h4 class="text-primary mb-3">Visão Geral da Empresa</h4>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Total de Carros</h5>
+                                        <p class="display-6 text-primary">{{ total_cars }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Carros Disponíveis</h5>
+                                        <p class="display-6 text-success">{{ available_cars }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Vendas Concluídas</h5>
+                                        <p class="display-6 text-info">{{ total_sales }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Receita Total</h5>
+                                        <p class="display-6 text-primary">R${{ total_revenue|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Total de Leads</h5>
+                                        <p class="display-6 text-warning">{{ total_leads }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Novos Leads Hoje</h5>
+                                        <p class="display-6 text-info">{{ new_leads_today }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {# Métricas para Vendedores #}
+                        {% if is_seller %}
+                            <h4 class="text-primary mb-3">Minhas Métricas de Vendas</h4>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Meus Carros Ativos</h5>
+                                        <p class="display-6 text-primary">{{ seller_total_cars }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Leads Atendidos</h5>
+                                        <p class="display-6 text-success">{{ seller_attended_customers }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Vendas no Mês</h5>
+                                        <p class="display-6 text-info">{{ seller_monthly_sales_count }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Receita Mês</h5>
+                                        <p class="display-6 text-primary">R${{ seller_monthly_revenue|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Carro Mais Vendido</h5>
+                                        <p class="display-6 text-warning">{{ seller_best_selling_car }} ({{ seller_best_selling_car_count }})</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-white rounded shadow-sm text-center">
+                                        <h5 class="text-secondary">Tempo Médio Fech.</h5>
+                                        <p class="display-6 text-info">{{ seller_avg_closing_time }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {# Mensagem padrão se não houver conteúdo específico #}
+                        {% if not is_admin_or_manager and not is_seller and not is_inspector %}
+                            <p>Seu painel está vazio. Por favor, contate o administrador para atribuir permissões.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Dashboard Content End -->
+{% endblock %}

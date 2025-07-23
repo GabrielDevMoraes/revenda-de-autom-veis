@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nossos Recursos - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Nossos Recursos</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="#">Páginas</a></li>
+                <li class="breadcrumb-item active text-primary">Recursos</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Features Start -->
+    <div class="container-fluid feature py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Recursos da <span class="text-primary">Cental</span></h1>
+                <p class="mb-0">Descubra as funcionalidades e vantagens que tornam a Cental a melhor plataforma para suas necessidades de compra e venda de veículos.
+                </p>
+            </div>
+            <div class="row g-4 align-items-center">
+                <div class="col-xl-4">
+                    <div class="row gy-4 gx-0">
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <span class="fa fa-shield-alt fa-2x"></span> {# Ícone de segurança #}
+                                </div>
+                                <div class="ms-4">
+                                    <h5 class="mb-3">Transações Seguras</h5>
+                                    <p class="mb-0">Garantimos um ambiente seguro para todas as suas transações, protegendo seus dados e seu investimento.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <span class="fa fa-car-side fa-2x"></span> {# Ícone de carro #}
+                                </div>
+                                <div class="ms-4">
+                                    <h5 class="mb-3">Vasta Seleção de Veículos</h5>
+                                    <p class="mb-0">Explore milhares de veículos de diversas marcas e modelos, novos e usados, para encontrar o ideal.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
+                    <img src="{% static 'img/features-img.png' %}" class="img-fluid w-100" style="object-fit: cover;" alt="Imagem de Recursos">
+                </div>
+                <div class="col-xl-4">
+                    <div class="row gy-4 gx-0">
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="feature-item justify-content-end">
+                                <div class="text-end me-4">
+                                    <h5 class="mb-3">Anúncios Simples e Rápidos</h5>
+                                    <p class="mb-0">Liste seu veículo em minutos com nosso processo intuitivo e alcance milhões de compradores potenciais.</p>
+                                </div>
+                                <div class="feature-icon">
+                                    <span class="fa fa-tags fa-2x"></span> {# Ícone de tags/preço #}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="feature-item justify-content-end">
+                                <div class="text-end me-4">
+                                    <h5 class="mb-3">Suporte Especializado</h5>
+                                    <p class="mb-0">Nossa equipe está pronta para auxiliar em todas as etapas da sua compra ou venda, garantindo tranquilidade.</p>
+                                </div>
+                                <div class="feature-icon">
+                                    <span class="fa fa-headset fa-2x"></span> {# Ícone de suporte #}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Features End -->
+
+    <!-- Fact Counter -->
+    <div class="container-fluid counter py-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-thumbs-up fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">829</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Clientes Satisfeitos</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-car-alt fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">56</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Carros Anunciados</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-building fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">127</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Vendas Concluídas</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">589</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Horas de Suporte</h4> {# Alterado para algo mais relevante para features #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fact Counter -->
+
+    <!-- Banner Start -->
+    <div class="container-fluid banner py-5 wow zoomInDown" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="banner-item rounded">
+                <img src="{% static 'img/banner-1.jpg' %}" class="img-fluid rounded w-100" alt="Banner">
+                <div class="banner-content">
+                    <h2 class="text-primary">Quer Comprar ou Negociar?</h2>
+                    <h1 class="text-white">Fale Conosco Agora!</h1>
+                    <p class="text-white">Não hesite e nos envie uma mensagem.</p>
+                    <div class="banner-btn">
+                        <a href="https://wa.me/01234567890" class="btn btn-secondary rounded-pill py-3 px-4 px-md-5 me-2">WhatsApp</a>
+                        <a href="{% url 'contact' %}" class="btn btn-primary rounded-pill py-3 px-4 px-md-5 ms-2">Contate-nos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Banner End -->
+{% endblock %}

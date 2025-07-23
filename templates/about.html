@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sobre Nós - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Sobre Nós</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="#">Páginas</a></li>
+                <li class="breadcrumb-item active text-primary">Sobre</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- About Start -->
+    <div class="container-fluid overflow-hidden about py-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-xl-6 wow fadeInLeft" data-wow-delay="0.2s">
+                    <div class="about-item">
+                        <div class="pb-5">
+                            <h1 class="display-5 text-capitalize">Sobre a <span class="text-primary">Cental</span></h1>
+                            <p class="mb-0">A Cental é a sua plataforma completa para compra e venda de veículos. Conectamos compradores e vendedores de forma segura e eficiente, oferecendo as melhores ferramentas para você realizar o melhor negócio.
+                            </p>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="about-item-inner border p-4">
+                                    <div class="about-icon mb-4">
+                                        <img src="{% static 'img/about-icon-1.png' %}" class="img-fluid w-50 h-50" alt="Ícone de Visão">
+                                    </div>
+                                    <h5 class="mb-3">Nossa Visão</h5>
+                                    <p class="mb-0">Ser a plataforma líder em compra e venda de veículos, oferecendo a melhor experiência ao usuário.</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="about-item-inner border p-4">
+                                    <div class="about-icon mb-4">
+                                        <img src="{% static 'img/about-icon-2.png' %}" class="img-fluid h-50 w-50" alt="Ícone de Missão">
+                                    </div>
+                                    <h5 class="mb-3">Nossa Missão</h5>
+                                    <p class="mb-0">Simplificar o processo de compra e venda de veículos, garantindo segurança, transparência e satisfação.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-item my-4">Com uma interface intuitiva e recursos poderosos, a Cental torna a busca pelo seu próximo carro ou a venda do seu atual uma tarefa fácil e prazerosa.
+                        </p>
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="text-center rounded bg-secondary p-4">
+                                    <h1 class="display-6 text-white">17</h1>
+                                    <h5 class="text-light mb-0">Anos de Experiência</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="rounded">
+                                    <p class="mb-2"><i class="fa fa-check-circle text-primary me-1"></i> Transparência total nas negociações</p>
+                                    <p class="mb-2"><i class="fa fa-check-circle text-primary me-1"></i> Suporte dedicado ao cliente</p>
+                                    <p class="mb-2"><i class="fa fa-check-circle text-primary me-1"></i> Variedade de veículos verificados</p>
+                                    <p class="mb-0"><i class="fa fa-check-circle text-primary me-1"></i> Plataforma segura e confiável</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 d-flex align-items-center">
+                                <a href="{% url 'about' %}" class="btn btn-primary rounded py-3 px-5">Mais Sobre Nós</a>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="d-flex align-items-center">
+                                    {# Removida a imagem do fundador e substituída por emoji #}
+                                    <span class="display-4" style="font-size: 100px; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 4px solid var(--bs-secondary);" role="img" aria-label="Pessoa">👨‍💼</span>
+                                    <div class="ms-4">
+                                        <h4>Fulano</h4> {# Nome alterado #}
+                                        <p class="mb-0">Fundador da Cental</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 wow fadeInRight" data-wow-delay="0.2s">
+                    <div class="about-img">
+                        <div class="img-1">
+                            <img src="{% static 'img/about-img.jpg' %}" class="img-fluid rounded h-100 w-100" alt="Imagem 1 Sobre Nós">
+                        </div>
+                        <div class="img-2">
+                            <img src="{% static 'img/about-img-1.jpg' %}" class="img-fluid rounded w-100" alt="Imagem 2 Sobre Nós">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About End -->
+
+    <!-- Fact Counter -->
+    <div class="container-fluid counter py-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-thumbs-up fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">829</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Clientes Satisfeitos</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-car-alt fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">56</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Carros Anunciados</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-building fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">127</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Vendas Concluídas</h4>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3 wow fadeInUp" data-wow-delay="0.7s">
+                    <div class="counter-item text-center">
+                        <div class="counter-item-icon mx-auto">
+                            <i class="fas fa-handshake fa-2x"></i>
+                        </div>
+                        <div class="counter-counting my-3">
+                            <span class="text-white fs-2 fw-bold" data-toggle="counter-up">589</span>
+                            <span class="h1 fw-bold text-white">+</span>
+                        </div>
+                        <h4 class="text-white mb-0">Negociações Bem-sucedidas</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fact Counter -->
+
+    <!-- Features Start -->
+    <div class="container-fluid feature py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Nossos <span class="text-primary">Diferenciais</span></h1>
+                <p class="mb-0">Conheça os recursos que fazem da Cental a escolha ideal para sua próxima transação de veículo.
+                </p>
+            </div>
+            <div class="row g-4 align-items-center">
+                <div class="col-xl-4">
+                    <div class="row gy-4 gx-0">
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <span class="fa fa-check-circle fa-2x"></span>
+                                </div>
+                                <div class="ms-4">
+                                    <h5 class="mb-3">Verificação de Veículos</h5>
+                                    <p class="mb-0">Oferecemos opções de verificação para garantir a procedência e qualidade dos veículos anunciados.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <span class="fa fa-user-shield fa-2x"></span>
+                                </div>
+                                <div class="ms-4">
+                                    <h5 class="mb-3">Proteção ao Comprador/Vendedor</h5>
+                                    <p class="mb-0">Medidas de segurança para proteger ambas as partes durante todo o processo de negociação.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
+                    <img src="{% static 'img/features-img.png' %}" class="img-fluid w-100" style="object-fit: cover;" alt="Imagem de Diferenciais">
+                </div>
+                <div class="col-xl-4">
+                    <div class="row gy-4 gx-0">
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="feature-item justify-content-end">
+                                <div class="text-end me-4">
+                                    <h5 class="mb-3">Avaliação Justa de Preço</h5>
+                                    <p class="mb-0">Ferramentas que ajudam a determinar um preço competitivo para o seu veículo no mercado.</p>
+                                </div>
+                                <div class="feature-icon">
+                                    <span class="fa fa-balance-scale fa-2x"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="feature-item justify-content-end">
+                                <div class="text-end me-4">
+                                    <h5 class="mb-3">Comunidade Ativa</h5>
+                                    <p class="mb-0">Junte-se a uma comunidade de entusiastas e profissionais do mercado automotivo.</p>
+                                </div>
+                                <div class="feature-icon">
+                                    <span class="fa fa-users fa-2x"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Features End -->
+
+    <!-- Car Steps Start -->
+    <div class="container-fluid steps py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize text-white mb-3">Processo <span class="text-primary">Cental</span></h1>
+                <p class="mb-0 text-white">Nosso processo simplificado para você encontrar e adquirir o carro dos seus sonhos.
+                </p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="steps-item p-4 mb-4">
+                        <h4>Anuncie seu Veículo</h4>
+                        <p class="mb-0">Crie seu anúncio de forma rápida e fácil, com todas as informações do seu carro.</p>
+                        <div class="setps-number">01.</div>
+                    </div>
+                </div>
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="steps-item p-4 mb-4">
+                        <h4>Receba Propostas</h4>
+                        <p class="mb-0">Interessados entrarão em contato para fazer propostas e negociar.</p>
+                        <div class="setps-number">02.</div>
+                    </div>
+                </div>
+                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="steps-item p-4 mb-4">
+                        <h4>Conclua o Negócio</h4>
+                        <p class="mb-0">Finalize a venda ou compra de forma segura e transparente.</p>
+                        <div class="setps-number">03.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Car Steps End -->
+
+    <!-- Banner Start -->
+    <div class="container-fluid banner py-5 wow zoomInDown" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="banner-item rounded">
+                <img src="{% static 'img/banner-1.jpg' %}" class="img-fluid rounded w-100" alt="Banner">
+                <div class="banner-content">
+                    <h2 class="text-primary">Quer Comprar ou Negociar?</h2>
+                    <h1 class="text-white">Fale Conosco Agora!</h1>
+                    <p class="text-white">Não hesite e nos envie uma mensagem.</p>
+                    <div class="banner-btn">
+                        <a href="https://wa.me/01234567890" class="btn btn-secondary rounded-pill py-3 px-4 px-md-5 me-2">WhatsApp</a>
+                        <a href="{% url 'contact' %}" class="btn btn-primary rounded-pill py-3 px-4 px-md-5 ms-2">Contate-nos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Banner End -->
+{% endblock %}

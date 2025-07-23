@@ -1,0 +1,43 @@
+{# templates/dashboard/admin_overview.html #}
+{# Este template será incluído no dashboard_home.html para Admins/Gerentes #}
+
+<h4 class="text-primary mb-3">Visão Geral da Empresa</h4>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded shadow-sm text-center">
+            <h5 class="text-secondary">Total de Carros</h5>
+            <p class="display-6 text-primary">{{ total_cars }}</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded shadow-sm text-center">
+            <h5 class="text-secondary">Carros Disponíveis</h5>
+            <p class="display-6 text-success">{{ available_cars }}</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded shadow-sm text-center">
+            <h5 class="text-secondary">Vendas Concluídas</h5>
+            <p class="display-6 text-info">{{ total_sales }}</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded shadow-sm text-center">
+            <h5 class="text-secondary">Receita Total</h5>
+            <p class="display-6 text-primary">R${{ total_revenue|floatformat:2 }}</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded shadow-sm text-center">
+            <h5 class="text-secondary">Total de Leads</h5>
+            <p class="display-6 text-warning">{{ total_leads }}</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="p-3 bg-white rounded shadow-sm text-center">
+            <h5 class="text-secondary">Novos Leads Hoje</h5>
+            <p class="display-6 text-info">{{ new_leads_today }}</p>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vistorias - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Vistorias</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Painel</a></li>
+                <li class="breadcrumb-item active text-primary">Vistorias</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Inspections List Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Lista de <span class="text-primary">Vistorias</span></h1>
+                <p class="mb-0">Acompanhe o status das vistorias dos veículos.</p>
+            </div>
+
+            {% if inspections %}
+                <div class="table-responsive wow fadeInUp" data-wow-delay="0.3s">
+                    <table class="table table-hover table-bordered rounded">
+                        <thead class="bg-secondary text-white">
+                            <tr>
+                                <th scope="col">Carro</th>
+                                <th scope="col">Data da Vistoria</th>
+                                <th scope="col">Resultado</th>
+                                <th scope="col">Vistoriador</th>
+                                <th scope="col">Registro</th>
+                                <th scope="col">Observações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for inspection in inspections %}
+                            <tr>
+                                <td><a href="{% url 'car_detail' inspection.carro.pk %}" class="text-primary">{{ inspection.carro.marca }} {{ inspection.carro.modelo }}</a></td>
+                                <td>{{ inspection.data_vistoria|date:"d/m/Y" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if inspection.resultado == 'Aprovado' %}success{% elif inspection.resultado == 'Reprovado' %}danger{% else %}warning{% endif %}">
+                                        {{ inspection.resultado }}
+                                    </span>
+                                </td>
+                                <td>{{ inspection.vistoriador.get_full_name|default:inspection.vistoriador.username }}</td>
+                                <td>{{ inspection.data_registro|date:"d/m/Y H:i" }}</td>
+                                <td>{{ inspection.observacoes|truncatechars:50 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# Paginação #}
+                {% if is_paginated %}
+                <div class="pagination justify-content-center mt-4">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary mx-1">&laquo; Anterior</a>
+                    {% endif %}
+                    <span class="current btn btn-light mx-1">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary mx-1">Próxima &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center mt-5">
+                    <p>Nenhuma vistoria encontrada.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- Inspections List End -->
+{% endblock %}
