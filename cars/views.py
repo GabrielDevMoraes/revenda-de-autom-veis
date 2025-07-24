@@ -2,37 +2,33 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Car, Vistoria, Lavagem, LeadInteraction, Customer, Sale
-from .forms import LeadInteractionForm
+from .forms import LeadInteractionForm, VistoriaForm, LavagemForm, CarForm
 from django.views.generic import ListView, DetailView, TemplateView, View
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Q, Sum, Avg, Count
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
+from .models import LeadInteraction # Certifique-se de que LeadInteraction está importado
+from django.views.decorators.csrf import csrf_exempt # Importe csrf_exempt
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 import random
 from datetime import datetime, timedelta
-import urllib.parse # Para codificar o texto do WhatsApp
+import urllib.parse
+import json
 
 # Função auxiliar para adicionar a quilometragem em "K" aos objetos Carro
 def add_kilometragem_k(cars_queryset):
-    """
-    Adiciona um atributo 'quilometragem_k' a cada objeto Carro
-    no queryset, representando a quilometragem em milhares.
-    """
     for car in cars_queryset:
         car.quilometragem_k = car.quilometragem / 1000
     return cars_queryset
 
 # Função auxiliar para coletar dados do dashboard de administrador/gerente
 def get_admin_dashboard_data():
-    """
-    Coleta dados de visão geral da empresa para administradores/gerentes.
-    """
     total_cars = Car.objects.count()
     available_cars = Car.objects.filter(disponivel=True).count()
     total_sales = Sale.objects.count()
@@ -49,7 +45,133 @@ def get_admin_dashboard_data():
         'new_leads_today': new_leads_today,
     }
 
-# View para a página inicial (index.html)
+
+@method_decorator(login_required, name='dispatch')
+class InspectionListView(LoginRequiredMixin, ListView):
+    model = Vistoria
+    template_name = 'dashboard/inspection_list.html'
+    context_object_name = 'inspections'
+    paginate_by = 10
+
+    def get_queryset(self):
+        user = self.request.user
+        # Admins/Gerentes/Vendedores veem todas as vistorias, Vistoriadores veem as que são responsáveis
+        if user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes', 'Vendedores']).exists():
+            return Vistoria.objects.all().order_by('-data_vistoria')
+        elif user.groups.filter(name='Vistoriadores').exists():
+            return Vistoria.objects.filter(vistoriador=user).order_by('-data_vistoria')
+        return Vistoria.objects.none()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        # Passa as permissões para o template para controlar a visibilidade dos botões
+        context['can_add_inspection'] = user.has_perm('cars.add_vistoria')
+        context['can_change_inspection'] = user.has_perm('cars.change_vistoria')
+        return context
+
+@login_required
+@permission_required('cars.add_vistoria', raise_exception=True)
+def add_inspection_view(request):
+    """
+    View para adicionar um novo registro de vistoria.
+    Exige que o usuário esteja logado e tenha a permissão 'cars.add_vistoria'.
+    """
+    if request.method == 'POST':
+        form = VistoriaForm(request.POST)
+        if form.is_valid():
+            vistoria = form.save(commit=False)
+            vistoria.vistoriador = request.user # Atribui o vistoriador logado
+            vistoria.save()
+            messages.success(request, 'Vistoria adicionada com sucesso!')
+            return redirect('inspection_list') # Redireciona para a lista de vistorias
+    else:
+        # Preenche o campo vistoriador com o usuário logado por padrão
+        form = VistoriaForm(initial={'vistoriador': request.user}) 
+    
+    context = {
+        'form': form,
+        'action_type': 'Adicionar',
+        'model_name': 'Vistoria' # Nome do modelo para o template genérico
+    }
+    return render(request, 'dashboard/inspection_form.html', context)
+
+@login_required
+@permission_required('cars.add_vistoria', raise_exception=True)
+def add_inspection_view(request):
+    """
+    View para adicionar um novo registro de vistoria.
+    Exige que o usuário esteja logado e tenha a permissão 'cars.add_vistoria'.
+    """
+    if request.method == 'POST':
+        form = VistoriaForm(request.POST)
+        if form.is_valid():
+            vistoria = form.save(commit=False)
+            vistoria.vistoriador = request.user # Atribui o vistoriador logado
+            vistoria.save()
+            messages.success(request, 'Vistoria adicionada com sucesso!')
+            return redirect('inspection_list') # Redireciona para a lista de vistorias
+    else:
+        # Preenche o campo vistoriador com o usuário logado por padrão
+        form = VistoriaForm(initial={'vistoriador': request.user}) 
+    
+    context = {
+        'form': form,
+        'action_type': 'Adicionar',
+        'model_name': 'Vistoria' # Nome do modelo para o template genérico
+    }
+    return render(request, 'dashboard/inspection_form.html', context)
+
+@login_required
+@permission_required('cars.change_vistoria', raise_exception=True)
+def edit_inspection_view(request, pk):
+    """
+    View para editar um registro de vistoria existente.
+    Exige que o usuário esteja logado e tenha a permissão 'cars.change_vistoria'.
+    """
+    vistoria = get_object_or_404(Vistoria, pk=pk) # Obtém a vistoria pelo ID
+
+    if request.method == 'POST':
+        form = VistoriaForm(request.POST, instance=vistoria) # Preenche o formulário com dados POST e a instância existente
+        if form.is_valid():
+            form.save() # Salva as alterações na vistoria
+            messages.success(request, 'Vistoria atualizada com sucesso!')
+            return redirect('inspection_list') # Redireciona para a lista de vistorias
+    else:
+        form = VistoriaForm(instance=vistoria) # Preenche o formulário com os dados da vistoria existente
+    
+    context = {
+        'form': form,
+        'action_type': 'Editar',
+        'model_name': 'Vistoria',
+        'vistoria': vistoria # Passa a instância da vistoria para o template
+    }
+    return render(request, 'dashboard/inspection_form.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class CarWashListView(LoginRequiredMixin, ListView):
+    model = Lavagem
+    template_name = 'dashboard/car_wash_list.html'
+    context_object_name = 'car_washes'
+    paginate_by = 10
+
+    def get_queryset(self):
+        user = self.request.user
+        # Admins/Gerentes/Vendedores veem todas as lavagens, outros veem as que são responsáveis
+        if user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes', 'Vendedores']).exists():
+            return Lavagem.objects.all().order_by('-data_lavagem')
+        elif user.groups.filter(name__in=['Vistoriadores', 'Lavadores']).exists(): # Se houver um grupo 'Lavadores'
+            return Lavagem.objects.filter(responsavel=user).order_by('-data_lavagem')
+        return Lavagem.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        # Passa as permissões para o template para controlar a visibilidade dos botões
+        context['can_add_car_wash'] = user.has_perm('cars.add_lavagem')
+        context['can_change_car_wash'] = user.has_perm('cars.change_lavagem')
+        return context
+
 class HomePageView(TemplateView):
     template_name = 'index.html'
 
@@ -59,8 +181,6 @@ class HomePageView(TemplateView):
         context['latest_cars'] = add_kilometragem_k(latest_cars)
         return context
 
-
-# View para a página de listagem de carros (cars.html)
 class CarListView(ListView):
     model = Car
     template_name = 'cars/car_list.html'
@@ -69,27 +189,21 @@ class CarListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(disponivel=True)
-
         brand = self.request.GET.get('brand')
         model = self.request.GET.get('model')
         max_price = self.request.GET.get('max_price')
-
         if brand and brand != 'Selecione a Marca':
             queryset = queryset.filter(marca=brand)
-        
         if model:
             queryset = queryset.filter(Q(modelo__icontains=model))
-        
         if max_price:
             try:
                 max_price = float(max_price)
                 queryset = queryset.filter(preco__lte=max_price)
             except ValueError:
                 pass
-
         return add_kilometragem_k(queryset)
 
-# View para a página de detalhes do carro
 class CarDetailView(DetailView):
     model = Car
     template_name = 'cars/car_detail.html'
@@ -100,44 +214,34 @@ class CarDetailView(DetailView):
         car = self.get_object()
         car.quilometragem_k = car.quilometragem / 1000
         context['car'] = car
-
         latest_cars = Car.objects.exclude(pk=self.object.pk).filter(disponivel=True).order_by('-data_cadastro')[:3]
         context['latest_cars'] = add_kilometragem_k(latest_cars)
         return context
 
-# View para a página "Sobre Nós" (about.html)
 class AboutPageView(TemplateView):
     template_name = 'about.html'
 
-# View para a página de serviços (service.html)
 class ServicePageView(TemplateView):
     template_name = 'service.html'
 
-# View para a página de blog (blog.html)
 class BlogPageView(TemplateView):
     template_name = 'blog.html'
 
-# View para a página de recursos (feature.html)
 class FeaturePageView(TemplateView):
     template_name = 'feature.html'
 
-# View para a página de equipe (team.html)
 class TeamPageView(TemplateView):
     template_name = 'team.html'
 
-# View para a página de depoimentos (testimonial.html)
 class TestimonialPageView(TemplateView):
     template_name = 'testimonial.html'
 
-# View para a página 404 (404.html)
 class Custom404View(TemplateView):
     template_name = '404.html'
 
-# View para a página de sucesso do contato
 class ContactSuccessView(TemplateView):
     template_name = 'contact_success.html'
 
-# View para a página de contato (contact.html) - Mantida para contatos gerais
 def contact_view(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -154,7 +258,7 @@ def contact_view(request):
                 subject,
                 full_message,
                 settings.DEFAULT_FROM_EMAIL,
-                ['your_email@example.com'], # E-mail para onde a mensagem será enviada (substitua pelo seu e-mail)
+                ['your_email@example.com'],
                 fail_silently=False,
             )
             messages.success(request, 'Sua mensagem foi enviada com sucesso! Entraremos em contato em breve.')
@@ -167,7 +271,6 @@ def contact_view(request):
             })
     return render(request, 'contact.html')
 
-# View para criar Lead a partir do formulário de interesse do cliente (AGORA SEM VENDEDOR INICIAL)
 def create_customer_lead(request):
     if request.method == 'POST':
         car_id = request.POST.get('car_id')
@@ -194,7 +297,6 @@ def create_customer_lead(request):
             if customer.telefone != request.POST.get('phone', ''):
                 customer.telefone = request.POST.get('phone', '')
             customer.save()
-
 
         lead_interaction = LeadInteraction.objects.create(
             carro=car,
@@ -242,6 +344,45 @@ class LeadInteractionListView(LoginRequiredMixin, ListView):
             return LeadInteraction.objects.all().order_by('-ultima_atualizacao')
         return LeadInteraction.objects.none()
 
+@csrf_exempt # <--- IMPORTANTE: Desabilita a verificação CSRF para esta view (para requisições AJAX)
+@login_required
+def update_lead_status_kanban(request):
+    """
+    Atualiza o status do lead via requisição AJAX (Kanban drag-and-drop).
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            lead_id = data.get('lead_id')
+            new_status = data.get('new_status')
+
+            lead = get_object_or_404(LeadInteraction, pk=lead_id)
+            
+            user = request.user
+            # Permissão: Vendedor responsável, ou Admin/Gerente pode mudar
+            # Se o lead não tem vendedor atribuído, qualquer vendedor pode movê-lo inicialmente.
+            if lead.vendedor != user and not (user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes']).exists()):
+                # Se o lead não tem vendedor e o usuário é vendedor, ele pode reivindicar ao mover
+                if lead.vendedor is None and user.groups.filter(name='Vendedores').exists():
+                    lead.vendedor = user
+                else:
+                    return JsonResponse({'status': 'error', 'message': 'Você não tem permissão para atualizar este lead.'}, status=403)
+
+            # Valida se o novo status é um dos STATUS_INTERACTION_CHOICES
+            valid_statuses = [choice[0] for choice in LeadInteraction.STATUS_INTERACTION_CHOICES]
+            if new_status not in valid_statuses:
+                return JsonResponse({'status': 'error', 'message': 'Status inválido.'}, status=400)
+
+            lead.status = new_status
+            lead.save()
+            return JsonResponse({'status': 'success', 'message': 'Status do lead atualizado com sucesso!'})
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Requisição JSON inválida.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error', 'message': 'Método não permitido.'}, status=405)
+
+
 @login_required
 def lead_interaction_detail_and_update(request, pk):
     lead_interaction = get_object_or_404(LeadInteraction, pk=pk)
@@ -254,6 +395,13 @@ def lead_interaction_detail_and_update(request, pk):
     if request.method == 'POST':
         form = LeadInteractionForm(request.POST, instance=lead_interaction)
         if form.is_valid():
+            if form.cleaned_data['status'] == 'Fechado - Ganho':
+                car = lead_interaction.carro
+                car.disponivel = False
+                car.status_veiculo = 'Vendido'
+                car.save()
+                messages.info(request, f"Carro '{car.modelo}' atualizado para indisponível (Vendido)!")
+
             form.save()
             messages.success(request, 'Status da interação atualizado com sucesso!')
             return redirect('lead_interaction_list')
@@ -267,10 +415,7 @@ def lead_interaction_detail_and_update(request, pk):
     return render(request, 'cars/lead_interaction_detail.html', context)
 
 @login_required
-def create_lead_interaction_manual(request): # Renomeada para clareza (manual)
-    """
-    View para criar uma nova interação de lead manualmente por um vendedor logado.
-    """
+def create_lead_interaction_manual(request):
     if request.method == 'POST':
         car_id = request.POST.get('car_id')
         customer_name = request.POST.get('customer_name', 'Cliente Genérico')
@@ -289,7 +434,7 @@ def create_lead_interaction_manual(request): # Renomeada para clareza (manual)
         )
         if not created:
             if customer.nome_completo != customer_name:
-                customer.nome_tempo = customer_name # Erro de digitação aqui: customer_tempo -> nome_completo
+                customer.nome_completo = customer_name
             if customer.whatsapp_number != whatsapp_number:
                 customer.whatsapp_number = whatsapp_number
             customer.save()
@@ -312,9 +457,6 @@ def create_lead_interaction_manual(request): # Renomeada para clareza (manual)
 
 @login_required
 def claim_lead(request, pk):
-    """
-    Permite que um vendedor logado reivindique um lead não atribuído.
-    """
     lead_interaction = get_object_or_404(LeadInteraction, pk=pk)
 
     user = request.user
@@ -340,9 +482,6 @@ def claim_lead(request, pk):
 
 @login_required
 def initiate_whatsapp_conversation(request, pk):
-    """
-    Redireciona para o WhatsApp com mensagem pré-preenchida e atualiza o status do lead.
-    """
     lead_interaction = get_object_or_404(LeadInteraction, pk=pk)
 
     user = request.user
@@ -358,59 +497,133 @@ def initiate_whatsapp_conversation(request, pk):
     lead_interaction.save()
     messages.success(request, f"Status do lead atualizado para 'Em Andamento (WhatsApp)'!")
 
-    # Constrói a mensagem pré-preenchida
-    whatsapp_message = f"Olá {lead_interaction.cliente.nome_completo}! Meu nome é {user.get_full_name() or user.username} da Cental. Vi seu interesse no carro {lead_interaction.carro.marca} {lead_interaction.carro.modelo} ({lead_interaction.carro.ano}) disponível por R${lead_interaction.carro.preco:.2f}. Posso ajudar com alguma dúvida?" # Corrigido a formatação do preço
+    whatsapp_message = f"Olá {lead_interaction.cliente.nome_completo}! Meu nome é {user.get_full_name() or user.username} da Cental. Vi seu interesse no carro {lead_interaction.carro.marca} {lead_interaction.carro.modelo} ({lead_interaction.carro.ano}) disponível por R${lead_interaction.carro.preco:.2f}. Posso ajudar com alguma dúvida?"
     encoded_message = urllib.parse.quote(whatsapp_message)
 
     whatsapp_url = f"https://wa.me/{lead_interaction.cliente.whatsapp_number}?text={encoded_message}"
     
     return redirect(whatsapp_url)
 
+@login_required
+@permission_required('cars.add_lavagem', raise_exception=True)
+def add_car_wash_view(request):
+    """
+    View para adicionar um novo registro de lavagem.
+    Exige que o usuário esteja logado e tenha a permissão 'cars.add_lavagem'.
+    """
+    if request.method == 'POST':
+        form = LavagemForm(request.POST)
+        if form.is_valid():
+            lavagem = form.save(commit=False)
+            lavagem.responsavel = request.user # Atribui o responsável logado
+            lavagem.save()
+            messages.success(request, 'Lavagem adicionada com sucesso!')
+            return redirect('car_wash_list') # Redireciona para a lista de lavagens
+    else:
+        # Preenche o campo responsável com o usuário logado por padrão
+        form = LavagemForm(initial={'responsavel': request.user}) 
+    
+    context = {
+        'form': form,
+        'action_type': 'Adicionar',
+        'model_name': 'Lavagem' # Nome do modelo para o template genérico
+    }
+    return render(request, 'dashboard/car_wash_form.html', context)
 
-@method_decorator(login_required, name='dispatch')
-class SellerDashboardView(LoginRequiredMixin, ListView):
-    model = Car
-    template_name = 'cars/seller_dashboard.html'
-    context_object_name = 'my_cars'
-    paginate_by = 10
 
-    def get_queryset(self):
-        return Car.objects.filter(vendedor=self.request.user).order_by('-data_cadastro')
+@login_required
+@permission_required('cars.change_lavagem', raise_exception=True)
+def edit_car_wash_view(request, pk):
+    """
+    View para editar um registro de lavagem existente.
+    Exige que o usuário esteja logado e tenha a permissão 'cars.change_lavagem'.
+    """
+    lavagem = get_object_or_404(Lavagem, pk=pk) # Obtém o registro de lavagem pelo ID
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['my_cars'] = add_kilometragem_k(context['my_cars'])
-        return context
+    if request.method == 'POST':
+        form = LavagemForm(request.POST, instance=lavagem) # Preenche o formulário com dados POST e a instância existente
+        if form.is_valid():
+            form.save() # Salva as alterações no registro de lavagem
+            messages.success(request, 'Lavagem atualizada com sucesso!')
+            return redirect('car_wash_list') # Redireciona para a lista de lavagens
+    else:
+        form = LavagemForm(instance=lavagem) # Preenche o formulário com os dados do registro de lavagem existente
+    
+    context = {
+        'form': form,
+        'action_type': 'Editar',
+        'model_name': 'Lavagem',
+        'lavagem': lavagem # Passa a instância da lavagem para o template
+    }
+    return render(request, 'dashboard/car_wash_form.html', context)
 
-@method_decorator(login_required, name='dispatch')
-class InspectionListView(LoginRequiredMixin, ListView):
-    model = Vistoria
-    template_name = 'dashboard/inspection_list.html'
-    context_object_name = 'inspections'
-    paginate_by = 10
+# NOVO: Views para CRUD de Carros (Adicionar)
+@login_required
+@permission_required('cars.add_car', raise_exception=True)
+def add_car_view(request):
+    if request.method == 'POST':
+        form = CarForm(request.POST, request.FILES)
+        if form.is_valid():
+            car = form.save()
+            messages.success(request, f"Carro '{car.modelo}' adicionado com sucesso!")
+            return redirect('seller_dashboard')
+    else:
+        form = CarForm(initial={'vendedor': request.user})
+    
+    context = {
+        'form': form,
+        'action_type': 'Adicionar',
+        'model_name': 'Carro'
+    }
+    return render(request, 'dashboard/car_form.html', context)
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes', 'Vendedores']).exists():
-            return Vistoria.objects.all().order_by('-data_vistoria')
-        elif user.groups.filter(name='Vistoriadores').exists():
-            return Vistoria.objects.filter(vistoriador=user).order_by('-data_vistoria')
-        return Vistoria.objects.none()
+# NOVO: Views para CRUD de Carros (Editar)
+@login_required
+@permission_required('cars.change_car', raise_exception=True)
+def edit_car_view(request, pk):
+    car = get_object_or_404(Car, pk=pk)
+    
+    if car.vendedor != request.user and not (request.user.is_superuser or request.user.groups.filter(name__in=['Administradores', 'Gerentes']).exists()):
+        messages.error(request, "Você não tem permissão para editar este carro.")
+        return redirect('seller_dashboard')
 
-@method_decorator(login_required, name='dispatch')
-class CarWashListView(LoginRequiredMixin, ListView):
-    model = Lavagem
-    template_name = 'dashboard/car_wash_list.html'
-    context_object_name = 'car_washes'
-    paginate_by = 10
+    if request.method == 'POST':
+        form = CarForm(request.POST, request.FILES, instance=car)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Carro '{car.modelo}' atualizado com sucesso!")
+            return redirect('seller_dashboard')
+    else:
+        form = CarForm(instance=car)
+    
+    context = {
+        'form': form,
+        'action_type': 'Editar',
+        'model_name': 'Carro'
+    }
+    return render(request, 'dashboard/car_form.html', context)
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes', 'Vendedores']).exists():
-            return Lavagem.objects.all().order_by('-data_lavagem')
-        elif user.groups.filter(name__in=['Vistoriadores', 'Lavadores']).exists():
-            return Lavagem.objects.filter(responsavel=user).order_by('-data_lavagem')
-        return Lavagem.objects.none()
+# NOVO: Views para CRUD de Carros (Deletar)
+@login_required
+@permission_required('cars.delete_car', raise_exception=True)
+def delete_car_view(request, pk):
+    car = get_object_or_404(Car, pk=pk)
+    
+    if car.vendedor != request.user and not (request.user.is_superuser or request.user.groups.filter(name__in=['Administradores', 'Gerentes']).exists()):
+        messages.error(request, "Você não tem permissão para deletar este carro.")
+        return redirect('seller_dashboard')
+
+    if request.method == 'POST':
+        car.delete()
+        messages.success(request, f"Carro '{car.modelo}' deletado com sucesso!")
+        return redirect('seller_dashboard')
+    
+    context = {
+        'car': car,
+        'model_name': 'Carro'
+    }
+    return render(request, 'dashboard/confirm_delete.html', context)
+
 
 @method_decorator(login_required, name='dispatch')
 class DashboardHomeView(LoginRequiredMixin, TemplateView):
@@ -427,6 +640,23 @@ class DashboardHomeView(LoginRequiredMixin, TemplateView):
         context['is_admin_or_manager'] = is_admin_or_manager
         context['is_seller'] = is_seller
         context['is_inspector'] = is_inspector
+
+        context['lead_statuses'] = LeadInteraction.STATUS_INTERACTION_CHOICES
+
+        if is_seller:
+            all_leads = LeadInteraction.objects.filter(Q(vendedor=user) | Q(vendedor__isnull=True)).order_by('-ultima_atualizacao')
+        elif is_admin_or_manager:
+            all_leads = LeadInteraction.objects.all().order_by('-ultima_atualizacao')
+        else:
+            all_leads = LeadInteraction.objects.none()
+
+        leads_by_status = {status_key: [] for status_key, status_label in LeadInteraction.STATUS_INTERACTION_CHOICES}
+        for lead in all_leads:
+            lead.carro.quilometragem_k = lead.carro.quilometragem / 1000
+            lead.formatted_price = f"R${lead.carro.preco:.2f}"
+            leads_by_status[lead.status].append(lead)
+        
+        context['leads_by_status'] = leads_by_status
 
         if is_admin_or_manager:
             context.update(get_admin_dashboard_data())

@@ -68,7 +68,7 @@ class Customer(models.Model):
     nome_completo = models.CharField(max_length=200, verbose_name="Nome Completo")
     email = models.EmailField(unique=True, verbose_name="Email")
     telefone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefone")
-    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="WhatsApp") # NOVO CAMPO
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="WhatsApp")
     endereco = models.CharField(max_length=255, blank=True, null=True, verbose_name="Endereço")
 
     def __str__(self):
@@ -118,6 +118,10 @@ class Vistoria(models.Model):
         verbose_name = "Vistoria"
         verbose_name_plural = "Vistorias"
         ordering = ['-data_vistoria']
+        permissions = [ # PERMISSÕES CUSTOMIZADAS
+            ("can_add_vistoria", "Pode adicionar vistoria"),
+            ("can_change_vistoria", "Pode editar vistoria"),
+        ]
 
 class Lavagem(models.Model):
     """
@@ -145,6 +149,10 @@ class Lavagem(models.Model):
         verbose_name = "Lavagem"
         verbose_name_plural = "Lavagens"
         ordering = ['-data_lavagem']
+        permissions = [ # PERMISSÕES CUSTOMIZADAS
+            ("can_add_lavagem", "Pode adicionar lavagem"),
+            ("can_change_lavagem", "Pode editar lavagem"),
+        ]
 
 class LeadInteraction(models.Model):
     """
@@ -159,7 +167,7 @@ class LeadInteraction(models.Model):
         ('Fechado - Ganho', 'Fechado - Venda Concluída'),
         ('Fechado - Perdido', 'Fechado - Venda Perdida'),
         ('Follow-up', 'Follow-up Necessário'),
-        ('Em Andamento (WhatsApp)', 'Em Andamento (WhatsApp)'), # NOVO STATUS
+        ('Em Andamento (WhatsApp)', 'Em Andamento (WhatsApp)'),
     ]
 
     carro = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name="Carro de Interesse")

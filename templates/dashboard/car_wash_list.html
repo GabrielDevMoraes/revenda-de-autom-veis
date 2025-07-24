@@ -25,6 +25,12 @@
                 <p class="mb-0">Acompanhe os serviços de lavagem realizados nos veículos.</p>
             </div>
 
+            {% if can_add_car_wash or is_admin_or_manager %} {# Botão Adicionar só se tiver permissão #}
+                <div class="text-end mb-4">
+                    <a href="{% url 'add_car_wash' %}" class="btn btn-primary rounded-pill py-2 px-4"><i class="fas fa-plus me-2"></i> Adicionar Nova Lavagem</a>
+                </div>
+            {% endif %}
+
             {% if car_washes %}
                 <div class="table-responsive wow fadeInUp" data-wow-delay="0.3s">
                     <table class="table table-hover table-bordered rounded">
@@ -37,6 +43,9 @@
                                 <th scope="col">Responsável</th>
                                 <th scope="col">Registro</th>
                                 <th scope="col">Observações</th>
+                                {% if can_change_car_wash %} {# Coluna Ações só se tiver permissão de edição #}
+                                    <th scope="col">Ações</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -49,6 +58,11 @@
                                 <td>{{ wash.responsavel.get_full_name|default:wash.responsavel.username }}</td>
                                 <td>{{ wash.data_registro|date:"d/m/Y H:i" }}</td>
                                 <td>{{ wash.observacoes|truncatechars:50 }}</td>
+                                {% if can_change_car_wash %} {# Botão Editar por linha #}
+                                    <td>
+                                        <a href="{% url 'edit_car_wash' wash.pk %}" class="btn btn-sm btn-primary rounded-pill">Editar</a>
+                                    </td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>

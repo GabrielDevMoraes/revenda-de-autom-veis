@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action_type }} Lavagem - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">{{ action_type }} Lavagem</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Painel</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'car_wash_list' %}">Lavagens</a></li>
+                <li class="breadcrumb-item active text-primary">{{ action_type }}</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- Form Section Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="bg-secondary p-5 rounded shadow">
+                        <h4 class="text-primary mb-4">{{ action_type }} Detalhes da Lavagem</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label text-white">{{ field.label }}:</label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <div class="form-text text-light">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-light rounded-pill py-2 px-4 mt-3">Salvar</button>
+                            <a href="{% url 'car_wash_list' %}" class="btn btn-primary rounded-pill py-2 px-4 mt-3 ms-2">Cancelar</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Form Section End -->
+{% endblock %}

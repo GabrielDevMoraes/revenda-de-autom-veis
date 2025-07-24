@@ -1,0 +1,8 @@
+usuario: admin 
+senha : 12345678
+
+usuario: vendedor1
+senha: cental1234
+
+usuario: vistoriadores
+senha: cental1234

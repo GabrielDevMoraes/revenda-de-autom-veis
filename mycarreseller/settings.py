@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cars.apps.CarsConfig',  # Referência correta à classe AppConfig do seu aplicativo 'cars'
+    'cars.apps.CarsConfig',# Referência correta à classe AppConfig do seu aplicativo 'cars'
 ]
 
 MIDDLEWARE = [
