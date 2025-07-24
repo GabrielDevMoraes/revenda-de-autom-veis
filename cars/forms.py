@@ -1,7 +1,7 @@
 # cars/forms.py
 
 from django import forms
-from .models import LeadInteraction, Vistoria, Lavagem, Car # Importe Car
+from .models import LeadInteraction, Vistoria, Lavagem, Car, VistoriaPattern, VistoriaItemPattern, VistoriaActualItem # Importe VistoriaActualItem
 
 class LeadInteractionForm(forms.ModelForm):
     class Meta:
@@ -12,12 +12,23 @@ class LeadInteractionForm(forms.ModelForm):
         }
 
 class VistoriaForm(forms.ModelForm):
+    # O campo pattern será selecionado no formulário
+    # Se você quiser popular os itens do pattern dinamicamente no form web customizado,
+    # isso exigirá JavaScript no template e lógica na view.
     class Meta:
         model = Vistoria
-        fields = ['carro', 'data_vistoria', 'resultado', 'observacoes', 'vistoriador']
+        fields = ['carro', 'pattern', 'data_vistoria', 'resultado', 'observacoes_gerais', 'vistoriador']
         widgets = {
             'data_vistoria': forms.DateInput(attrs={'type': 'date'}),
-            'observacoes': forms.Textarea(attrs={'rows': 3}),
+            'observacoes_gerais': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class VistoriaActualItemForm(forms.ModelForm): # NOVO FORMULÁRIO
+    class Meta:
+        model = VistoriaActualItem
+        fields = ['is_ok', 'description_result', 'photo'] # item_pattern será definido na view
+        widgets = {
+            'description_result': forms.Textarea(attrs={'rows': 2}),
         }
 
 class LavagemForm(forms.ModelForm):
@@ -29,7 +40,7 @@ class LavagemForm(forms.ModelForm):
             'observacoes': forms.Textarea(attrs={'rows': 3}),
         }
 
-class CarForm(forms.ModelForm): # NOVO FORMULÁRIO PARA CARROS
+class CarForm(forms.ModelForm):
     class Meta:
         model = Car
         fields = ['marca', 'modelo', 'ano', 'preco', 'lugares', 'transmissao', 

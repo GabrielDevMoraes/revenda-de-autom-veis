@@ -94,22 +94,59 @@ class Sale(models.Model):
         verbose_name = "Venda"
         verbose_name_plural = "Vendas"
 
+class VistoriaPattern(models.Model): # NOVO MODELO: Padrão de Vistoria
+    """
+    Define um padrão de vistoria personalizável (checklist).
+    """
+    name = models.CharField(max_length=100, unique=True, verbose_name="Nome do Padrão")
+    description = models.TextField(blank=True, verbose_name="Descrição")
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Padrão de Vistoria"
+        verbose_name_plural = "Padrões de Vistoria"
+        ordering = ['name']
+
+class VistoriaItemPattern(models.Model): # NOVO MODELO: Item do Padrão de Vistoria
+    """
+    Define um item específico dentro de um Padrão de Vistoria.
+    """
+    pattern = models.ForeignKey(VistoriaPattern, on_delete=models.CASCADE, related_name='items', verbose_name="Padrão de Vistoria")
+    description = models.CharField(max_length=255, verbose_name="Descrição do Item")
+    is_mandatory = models.BooleanField(default=False, verbose_name="Obrigatório") # Refere-se a "Obrigatoriedade"
+    requires_photo = models.BooleanField(default=False, verbose_name="Requer Foto") # Refere-se a "Foto"
+    order = models.IntegerField(default=0, verbose_name="Ordem") # Para ordenar os itens
+
+    def __str__(self):
+        return f"{self.pattern.name} - {self.description}"
+
+    class Meta:
+        verbose_name = "Item do Padrão de Vistoria"
+        verbose_name_plural = "Itens do Padrão de Vistoria"
+        ordering = ['pattern', 'order']
+        unique_together = ('pattern', 'description') # Um item não pode ter a mesma descrição no mesmo padrão
+
 class Vistoria(models.Model):
     """
-    Modelo para registrar a vistoria de um veículo.
+    Modelo para registrar uma vistoria de um veículo.
     """
     RESULTADO_CHOICES = [
         ('Aprovado', 'Aprovado'),
         ('Reprovado', 'Reprovado'),
         ('Pendente', 'Pendente'),
+        ('Finalizada', 'Finalizada'), # Adicionado "Finalizada"
     ]
 
     carro = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name="Carro")
     data_vistoria = models.DateField(verbose_name="Data da Vistoria")
-    resultado = models.CharField(max_length=20, choices=RESULTADO_CHOICES, default='Pendente', verbose_name="Resultado")
-    observacoes = models.TextField(blank=True, verbose_name="Observações")
+    resultado = models.CharField(max_length=20, choices=RESULTADO_CHOICES, default='Pendente', verbose_name="Resultado Geral")
+    observacoes_gerais = models.TextField(blank=True, verbose_name="Observações Gerais") # Renomeado de observacoes
     vistoriador = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Vistoriador")
     data_registro = models.DateTimeField(auto_now_add=True, verbose_name="Data de Registro")
+    pattern = models.ForeignKey(VistoriaPattern, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Padrão de Vistoria Utilizado") # NOVO CAMPO
 
     def __str__(self):
         return f"Vistoria de {self.carro.modelo} em {self.data_vistoria} - {self.resultado}"
@@ -118,10 +155,31 @@ class Vistoria(models.Model):
         verbose_name = "Vistoria"
         verbose_name_plural = "Vistorias"
         ordering = ['-data_vistoria']
-        permissions = [ # PERMISSÕES CUSTOMIZADAS
+        permissions = [
             ("can_add_vistoria", "Pode adicionar vistoria"),
             ("can_change_vistoria", "Pode editar vistoria"),
+            ("can_view_all_vistorias", "Pode visualizar todas as vistorias"), # Nova permissão para ver todas
         ]
+
+class VistoriaActualItem(models.Model): # NOVO MODELO: Registro real de um item de vistoria
+    """
+    Registra o resultado de um item específico em uma vistoria.
+    """
+    vistoria = models.ForeignKey(Vistoria, on_delete=models.CASCADE, related_name='actual_items', verbose_name="Vistoria")
+    item_pattern = models.ForeignKey(VistoriaItemPattern, on_delete=models.CASCADE, verbose_name="Item do Padrão")
+    is_ok = models.BooleanField(default=True, verbose_name="Está OK?") # Resultado simples (pass/fail)
+    description_result = models.TextField(blank=True, verbose_name="Descrição do Resultado")
+    photo = models.ImageField(upload_to='vistorias/itens/', blank=True, null=True, verbose_name="Foto do Item")
+
+    def __str__(self):
+        return f"{self.vistoria.carro.modelo} - {self.item_pattern.description} ({'OK' if self.is_ok else 'PROBLEMA'})"
+
+    class Meta:
+        verbose_name = "Item da Vistoria Real"
+        verbose_name_plural = "Itens da Vistoria Real"
+        unique_together = ('vistoria', 'item_pattern') # Um item de padrão só pode ser avaliado uma vez por vistoria
+        ordering = ['item_pattern__order'] # Ordena os itens com base na ordem do padrão
+
 
 class Lavagem(models.Model):
     """
@@ -149,7 +207,7 @@ class Lavagem(models.Model):
         verbose_name = "Lavagem"
         verbose_name_plural = "Lavagens"
         ordering = ['-data_lavagem']
-        permissions = [ # PERMISSÕES CUSTOMIZADAS
+        permissions = [
             ("can_add_lavagem", "Pode adicionar lavagem"),
             ("can_change_lavagem", "Pode editar lavagem"),
         ]

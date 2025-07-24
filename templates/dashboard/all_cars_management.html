@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gerenciar Todos os Carros - Cental{% endblock %}
+
+{% block content %}
+    <!-- Header Start -->
+    <div class="container-fluid bg-breadcrumb">
+        <div class="container text-center py-5" style="max-width: 900px;">
+            <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Gerenciar Carros</h4>
+            <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Painel</a></li>
+                <li class="breadcrumb-item active text-primary">Todos os Carros</li>
+            </ol>    
+        </div>
+    </div>
+    <!-- Header End -->
+
+    <!-- All Cars Management List Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 800px;">
+                <h1 class="display-5 text-capitalize mb-3">Gerenciar <span class="text-primary">Todos os Veículos</span></h1>
+                <p class="mb-0">Visualize, adicione, edite e delete carros no seu inventário.</p>
+            </div>
+
+            {% if can_add_car %} {# Botão Adicionar Carro #}
+                <div class="text-end mb-4">
+                    <a href="{% url 'add_car' %}" class="btn btn-primary rounded-pill py-2 px-4"><i class="fas fa-plus me-2"></i> Adicionar Novo Carro</a>
+                </div>
+            {% endif %}
+
+            {% if all_cars_managed %} {# Aqui deve vir a lista de TODOS os carros #}
+                <div class="row g-4 justify-content-center">
+                    {% for car in all_cars_managed %}
+                    <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="categories-item p-4">
+                            <div class="categories-item-inner">
+                                <div class="categories-img rounded-top">
+                                    {% if car.imagem %}
+                                        <img src="{{ car.imagem.url }}" class="img-fluid w-100 rounded-top" alt="{{ car.marca }} {{ car.modelo }}">
+                                    {% else %}
+                                        <img src="https://placehold.co/600x400/CCCCCC/333333?text=Sem+Imagem" class="img-fluid w-100 rounded-top" alt="Placeholder Car">
+                                    {% endif %}
+                                </div>
+                                <div class="categories-content rounded-bottom p-4">
+                                    <h4>{{ car.marca }} {{ car.modelo }}</h4>
+                                    <div class="categories-review mb-4">
+                                        <div class="me-3">Status: {{ car.status_veiculo }}</div>
+                                        <div class="d-flex justify-content-center text-secondary">
+                                            {# Você pode adicionar ícones de status aqui se quiser #}
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <h4 class="bg-white text-primary rounded-pill py-2 px-4 mb-0">R${{ car.preco|floatformat:2 }}</h4>
+                                    </div>
+                                    <div class="row gy-2 gx-0 text-center mb-4">
+                                        <div class="col-4 border-end border-white">
+                                            <i class="fa fa-users text-dark"></i> <span class="text-body ms-1">{{ car.lugares }} Lugares</span>
+                                        </div>
+                                        <div class="col-4 border-end border-white">
+                                            <i class="fa fa-car text-dark"></i> <span class="text-body ms-1">{{ car.transmissao }}</span>
+                                        </div>
+                                        <div class="col-4">
+                                            <i class="fa fa-gas-pump text-dark"></i> <span class="text-body ms-1">{{ car.combustivel }}</span>
+                                        </div>
+                                        <div class="col-4 border-end border-white">
+                                            <i class="fa fa-car text-dark"></i> <span class="text-body ms-1">{{ car.ano }}</span>
+                                        </div>
+                                        <div class="col-4 border-end border-white">
+                                            <i class="fa fa-cogs text-dark"></i> <span class="text-body ms-1">{{ car.transmissao }}</span>
+                                        </div>
+                                        <div class="col-4">
+                                            <i class="fa fa-road text-dark"></i> <span class="text-body ms-1">{{ car.quilometragem_k|floatformat:0 }}K</span>
+                                        </div>
+                                    </div>
+                                    {# Informação do Vendedor Responsável #}
+                                    <p class="mb-2 text-center small text-muted">
+                                        Vendedor: {% if car.vendedor %}{{ car.vendedor.get_full_name|default:car.vendedor.username }}{% else %}Não Atribuído{% endif %}
+                                    </p>
+                                    {# Botões de Ação (Editar/Deletar) #}
+                                    <div class="d-flex justify-content-center mt-3">
+                                        <a href="{% url 'car_detail' car.pk %}" class="btn btn-sm btn-outline-secondary me-2">Ver Detalhes</a>
+                                        {% if can_change_car %}
+                                            <a href="{% url 'edit_car' car.pk %}" class="btn btn-sm btn-primary rounded-pill me-2">Editar</a>
+                                        {% endif %}
+                                        {% if can_delete_car %}
+                                            <a href="{% url 'delete_car' car.pk %}" class="btn btn-sm btn-danger rounded-pill">Deletar</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {# Paginação #}
+                {% if is_paginated %}
+                <div class="pagination justify-content-center mt-4">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-primary mx-1">&laquo; Anterior</a>
+                    {% endif %}
+                    <span class="current btn btn-light mx-1">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary mx-1">Próxima &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center mt-5">
+                    <p>Nenhum veículo encontrado no inventário. 
+                        {% if can_add_car %}<a href="{% url 'add_car' %}">Cadastre um novo carro aqui</a>.{% else %}Contate um administrador para adicionar carros.{% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- All Cars Management List End -->
+{% endblock %}

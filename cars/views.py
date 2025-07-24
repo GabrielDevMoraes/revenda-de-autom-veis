@@ -1,8 +1,10 @@
 # cars/views.py
 
 from django.shortcuts import render, get_object_or_404, redirect
+
 from .models import Car, Vistoria, Lavagem, LeadInteraction, Customer, Sale
 from .forms import LeadInteractionForm, VistoriaForm, LavagemForm, CarForm
+from .models import Car, Vistoria, Lavagem, LeadInteraction, Customer, Sale, VistoriaPattern, VistoriaItemPattern, VistoriaActualItem
 from django.views.generic import ListView, DetailView, TemplateView, View
 from django.core.mail import send_mail
 from django.conf import settings
@@ -623,6 +625,34 @@ def delete_car_view(request, pk):
         'model_name': 'Carro'
     }
     return render(request, 'dashboard/confirm_delete.html', context)
+
+@method_decorator(login_required, name='dispatch')
+class AllCarsManagementView(LoginRequiredMixin, ListView): # NOVA VIEW: Gerenciar todos os carros
+    model = Car
+    template_name = 'dashboard/all_cars_management.html' # Novo template
+    context_object_name = 'all_cars_managed'
+    paginate_by = 10
+
+    def get_queryset(self):
+        user = self.request.user
+        # Admins/Gerentes veem todos os carros
+        if user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes']).exists():
+            return Car.objects.all().order_by('-data_cadastro')
+        # Vendedores só veem os seus próprios carros
+        elif user.groups.filter(name='Vendedores').exists():
+            messages.warning(self.request, "Você só pode visualizar seus próprios carros. Use 'Meus Carros'.")
+            return Car.objects.filter(vendedor=user).order_by('-data_cadastro')
+        return Car.objects.none() # Outros não veem nada
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Adiciona a quilometragem em K e formata preço para todos os carros
+        context['all_cars_managed'] = add_kilometragem_k(context['all_cars_managed']) # Apply helper to fetched queryset
+        user = self.request.user
+        context['can_add_car'] = user.has_perm('cars.add_car')
+        context['can_change_car'] = user.has_perm('cars.change_car')
+        context['can_delete_car'] = user.has_perm('cars.delete_car')
+        return context
 
 
 @method_decorator(login_required, name='dispatch')

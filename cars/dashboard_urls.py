@@ -10,6 +10,7 @@ urlpatterns = [
 
     # Painel Específico do Vendedor (Meus Carros)
     path('my-cars/', views.SellerDashboardView.as_view(), name='seller_dashboard'),
+    path('all-cars/', views.AllCarsManagementView.as_view(), name='all_cars_management'),
 
     # Painel de Leads do Vendedor (CRM)
     path('leads/', views.LeadInteractionListView.as_view(), name='lead_interaction_list'),

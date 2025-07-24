@@ -33,7 +33,7 @@
                                 <li class="list-group-item bg-light"><a href="{% url 'car_wash_list' %}" class="text-dark"><i class="fas fa-spray-can me-2"></i> Lavagens</a></li>
                             {% endif %}
                             
-                            {# NOVO: Gerenciamento de Carros (CRUD) #}
+                            {# NOVO: Gerenciamento de Carros (CRUD) - Para Admins/Gerentes #}
                             {% if perms.cars.add_car or perms.cars.change_car or perms.cars.delete_car %}
                                 <li class="list-group-item bg-light mt-3">
                                     <h6 class="text-secondary mb-2">Gerenciar Carros</h6>
@@ -41,9 +41,8 @@
                                         {% if perms.cars.add_car %}
                                             <li class="list-group-item bg-light"><a href="{% url 'add_car' %}" class="text-dark"><i class="fas fa-plus-circle me-2"></i> Adicionar Carro</a></li>
                                         {% endif %}
-                                        {% if perms.cars.change_car or perms.cars.delete_car %}
-                                            <li class="list-group-item bg-light"><a href="{% url 'seller_dashboard' %}" class="text-dark"><i class="fas fa-edit me-2"></i> Editar/Deletar Carros</a></li> {# Reutilizando seller_dashboard para listar seus carros para edição/deleção #}
-                                        {% endif %}
+                                        {# Link para gerenciar TODOS os carros #}
+                                        <li class="list-group-item bg-light"><a href="{% url 'all_cars_management' %}" class="text-dark"><i class="fas fa-cogs me-2"></i> Gerenciar Todos</a></li> 
                                     </ul>
                                 </li>
                             {% endif %}
