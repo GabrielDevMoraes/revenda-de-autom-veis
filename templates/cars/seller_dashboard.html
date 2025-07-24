@@ -31,27 +31,28 @@
                 <div class="row g-4 justify-content-center">
                     {% for car in my_cars %}
                     <div class="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="categories-item p-4">
-                            <div class="categories-item-inner">
-                                <div class="categories-img rounded-top">
+                        {# Adicionado h-100 para garantir que a coluna tenha altura total #}
+                        <div class="categories-item p-4 d-flex flex-column h-100"> 
+                            <div class="categories-item-inner d-flex flex-column h-100"> {# Adicionado h-100 para o conteúdo interno #}
+                                <div class="categories-img rounded-top flex-shrink-0"> {# flex-shrink-0 para que a imagem não encolha #}
                                     {% if car.imagem %}
                                         <img src="{{ car.imagem.url }}" class="img-fluid w-100 rounded-top" alt="{{ car.marca }} {{ car.modelo }}">
                                     {% else %}
                                         <img src="https://placehold.co/600x400/CCCCCC/333333?text=Sem+Imagem" class="img-fluid w-100 rounded-top" alt="Placeholder Car">
                                     {% endif %}
                                 </div>
-                                <div class="categories-content rounded-bottom p-4">
-                                    <h4>{{ car.marca }} {{ car.modelo }}</h4>
-                                    <div class="categories-review mb-4">
+                                <div class="categories-content rounded-bottom p-4 d-flex flex-column flex-grow-1"> {# flex-grow-1 para preencher espaço vertical #}
+                                    <h4 class="mb-3">{{ car.marca }} {{ car.modelo }}</h4> {# Adicionado mb-3 para espaçar do status #}
+                                    <div class="categories-review mb-3"> {# Alterado para mb-3 para espaçar do preço #}
                                         <div class="me-3">Status: {{ car.status_veiculo }}</div>
                                         <div class="d-flex justify-content-center text-secondary">
                                             {# Você pode adicionar ícones de status aqui se quiser #}
                                         </div>
                                     </div>
-                                    <div class="mb-4">
+                                    <div class="mb-3"> {# Alterado para mb-3 para espaçar dos detalhes #}
                                         <h4 class="bg-white text-primary rounded-pill py-2 px-4 mb-0">R${{ car.preco|floatformat:2 }}</h4>
                                     </div>
-                                    <div class="row gy-2 gx-0 text-center mb-4">
+                                    <div class="row gy-2 gx-0 text-center mb-auto"> {# mb-auto para empurrar botões para baixo #}
                                         <div class="col-4 border-end border-white">
                                             <i class="fa fa-users text-dark"></i> <span class="text-body ms-1">{{ car.lugares }} Lugares</span>
                                         </div>
@@ -71,8 +72,12 @@
                                             <i class="fa fa-road text-dark"></i> <span class="text-body ms-1">{{ car.quilometragem_k|floatformat:0 }}K</span>
                                         </div>
                                     </div>
+                                    {# Informação do Vendedor Responsável #}
+                                    <p class="mb-2 text-center small text-muted mt-3"> {# Adicionado mt-3 para espaçar dos detalhes #}
+                                        Vendedor: {% if car.vendedor %}{{ car.vendedor.get_full_name|default:car.vendedor.username }}{% else %}Não Atribuído{% endif %}
+                                    </p>
                                     {# Botões de Ação para o Vendedor (Editar/Deletar) #}
-                                    <div class="d-flex justify-content-center mt-3">
+                                    <div class="d-flex justify-content-center mt-auto"> {# mt-auto para empurrar botões para o final #}
                                         <a href="{% url 'car_detail' car.pk %}" class="btn btn-sm btn-outline-secondary me-2">Ver Detalhes</a>
                                         {% if can_change_car %}
                                             <a href="{% url 'edit_car' car.pk %}" class="btn btn-sm btn-primary rounded-pill me-2">Editar</a>
@@ -110,4 +115,4 @@
             {% endif %}
         </div>
     </div>
-    {% endblock %}
+{% endblock %}

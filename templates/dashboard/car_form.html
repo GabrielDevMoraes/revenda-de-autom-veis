@@ -10,7 +10,12 @@
             <ol class="breadcrumb d-flex justify-content-center mb-0 wow fadeInDown" data-wow-delay="0.3s">
                 <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard_home' %}">Painel</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'seller_dashboard' %}">Meus Carros</a></li> {# Pode ser "Gerenciar Carros" #}
+                {# Link condicional para "Meus Carros" ou "Gerenciar Todos" #}
+                {% if is_seller %}
+                    <li class="breadcrumb-item"><a href="{% url 'seller_dashboard' %}">Meus Carros</a></li>
+                {% elif is_admin_or_manager %}
+                    <li class="breadcrumb-item"><a href="{% url 'all_cars_management' %}">Gerenciar Todos</a></li>
+                {% endif %}
                 <li class="breadcrumb-item active text-primary">{{ action_type }}</li>
             </ol>    
         </div>
@@ -21,20 +26,103 @@
                 <div class="col-lg-8 col-md-10 wow fadeInUp" data-wow-delay="0.3s">
                     <div class="bg-secondary p-5 rounded shadow">
                         <h4 class="text-primary mb-4">{{ action_type }} Detalhes do Carro</h4>
-                        <form method="post" enctype="multipart/form-data"> {# Adicionado enctype para upload de arquivos #}
+                        <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            {% for field in form %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label text-white">{{ field.label }}:</label>
-                                    {{ field }}
-                                    {% if field.help_text %}
-                                        <div class="form-text text-light">{{ field.help_text }}</div>
-                                    {% endif %}
-                                    {% for error in field.errors %}
-                                        <div class="text-danger small">{{ error }}</div>
-                                    {% endfor %}
+                            
+                            {# Linha 1: Marca, Modelo, Ano, Preço de Venda #}
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-lg-3"> {# Marca #}
+                                    <label for="{{ form.marca.id_for_label }}" class="form-label text-white">{{ form.marca.label }}:</label>
+                                    {{ form.marca }}
+                                    {% for error in form.marca.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                                 </div>
-                            {% endfor %}
+                                <div class="col-12 col-lg-3"> {# Modelo #}
+                                    <label for="{{ form.modelo.id_for_label }}" class="form-label text-white">{{ form.modelo.label }}:</label>
+                                    {{ form.modelo }}
+                                    {% for error in form.modelo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-3"> {# Ano #}
+                                    <label for="{{ form.ano.id_for_label }}" class="form-label text-white">{{ form.ano.label }}:</label>
+                                    {{ form.ano }}
+                                    {% for error in form.ano.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-3"> {# Preço de Venda #}
+                                    <label for="{{ form.preco.id_for_label }}" class="form-label text-white">{{ form.preco.label }}:</label>
+                                    {{ form.preco }}
+                                    {% for error in form.preco.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+
+                            {# Linha 2: Número de Lugares, Transmissão, Combustível, Quilometragem #}
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-lg-3"> {# Número de Lugares #}
+                                    <label for="{{ form.lugares.id_for_label }}" class="form-label text-white">{{ form.lugares.label }}:</label>
+                                    {{ form.lugares }}
+                                    {% for error in form.lugares.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-3"> {# Transmissão #}
+                                    <label for="{{ form.transmissao.id_for_label }}" class="form-label text-white">{{ form.transmissao.label }}:</label>
+                                    {{ form.transmissao }}
+                                    {% for error in form.transmissao.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-3"> {# Combustível #}
+                                    <label for="{{ form.combustivel.id_for_label }}" class="form-label text-white">{{ form.combustivel.label }}:</label>
+                                    {{ form.combustivel }}
+                                    {% for error in form.combustivel.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-3"> {# Quilometragem (KM) #}
+                                    <label for="{{ form.quilometragem.id_for_label }}" class="form-label text-white">{{ form.quilometragem.label }}:</label>
+                                    {{ form.quilometragem }}
+                                    {% for error in form.quilometragem.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+
+                            {# Linha 3: Descrição (largura total) #}
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <label for="{{ form.descricao.id_for_label }}" class="form-label text-white">{{ form.descricao.label }}:</label>
+                                    {{ form.descricao }}
+                                    {% for error in form.descricao.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+
+                            {# Linha 4: Imagem (largura total) #}
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <label for="{{ form.imagem.id_for_label }}" class="form-label text-white">{{ form.imagem.label }}:</label>
+                                    {% if form.imagem.value %}
+                                        <div class="mb-2">
+                                            <a href="{{ form.imagem.value.url }}" target="_blank" class="text-white">Ver imagem atual</a>
+                                            <br>
+                                            <img src="{{ form.imagem.value.url }}" alt="Imagem atual" style="max-width: 150px; height: auto; border-radius: 5px; margin-top: 5px;">
+                                        </div>
+                                    {% endif %}
+                                    {{ form.imagem }}
+                                    {% for error in form.imagem.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            
+                            {# Linha 5: Disponível para Venda, Status do Veículo, Vendedor Responsável #}
+                            <div class="row g-3 mb-3 align-items-center"> {# align-items-center para alinhar a checkbox #}
+                                <div class="col-12 col-lg-4"> {# Disponível para Venda (Checkbox) #}
+                                    <div class="form-check pt-2"> {# pt-2 para alinhamento vertical #}
+                                        {{ form.disponivel }}
+                                        <label class="form-check-label text-white" for="{{ form.disponivel.id_for_label }}">{{ form.disponivel.label }}</label>
+                                    </div>
+                                    {% for error in form.disponivel.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-4"> {# Status do Veículo #}
+                                    <label for="{{ form.status_veiculo.id_for_label }}" class="form-label text-white">{{ form.status_veiculo.label }}:</label>
+                                    {{ form.status_veiculo }}
+                                    {% for error in form.status_veiculo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="col-12 col-lg-4"> {# Vendedor Responsável #}
+                                    <label for="{{ form.vendedor.id_for_label }}" class="form-label text-white">{{ form.vendedor.label }}:</label>
+                                    {{ form.vendedor }}
+                                    {% for error in form.vendedor.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+
                             <button type="submit" class="btn btn-light rounded-pill py-2 px-4 mt-3">Salvar</button>
                             <a href="{% url 'dashboard_home' %}" class="btn btn-primary rounded-pill py-2 px-4 mt-3 ms-2">Cancelar</a>
                         </form>

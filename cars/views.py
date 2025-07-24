@@ -99,32 +99,6 @@ def add_inspection_view(request):
     return render(request, 'dashboard/inspection_form.html', context)
 
 @login_required
-@permission_required('cars.add_vistoria', raise_exception=True)
-def add_inspection_view(request):
-    """
-    View para adicionar um novo registro de vistoria.
-    Exige que o usuário esteja logado e tenha a permissão 'cars.add_vistoria'.
-    """
-    if request.method == 'POST':
-        form = VistoriaForm(request.POST)
-        if form.is_valid():
-            vistoria = form.save(commit=False)
-            vistoria.vistoriador = request.user # Atribui o vistoriador logado
-            vistoria.save()
-            messages.success(request, 'Vistoria adicionada com sucesso!')
-            return redirect('inspection_list') # Redireciona para a lista de vistorias
-    else:
-        # Preenche o campo vistoriador com o usuário logado por padrão
-        form = VistoriaForm(initial={'vistoriador': request.user}) 
-    
-    context = {
-        'form': form,
-        'action_type': 'Adicionar',
-        'model_name': 'Vistoria' # Nome do modelo para o template genérico
-    }
-    return render(request, 'dashboard/inspection_form.html', context)
-
-@login_required
 @permission_required('cars.change_vistoria', raise_exception=True)
 def edit_inspection_view(request, pk):
     """
@@ -417,6 +391,37 @@ def lead_interaction_detail_and_update(request, pk):
     return render(request, 'cars/lead_interaction_detail.html', context)
 
 @login_required
+def lead_interaction_detail_and_update(request, pk):
+    lead_interaction = get_object_or_404(LeadInteraction, pk=pk)
+
+    user = request.user
+    if lead_interaction.vendedor != user and not (user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes']).exists()):
+        messages.error(request, "Você não tem permissão para acessar este lead.")
+        return redirect('lead_interaction_list')
+
+    if request.method == 'POST':
+        form = LeadInteractionForm(request.POST, instance=lead_interaction)
+        if form.is_valid():
+            if form.cleaned_data['status'] == 'Fechado - Ganho':
+                car = lead_interaction.carro
+                car.disponivel = False
+                car.status_veiculo = 'Vendido'
+                car.save()
+                messages.info(request, f"Carro '{car.modelo}' atualizado para indisponível (Vendido)!")
+
+            form.save()
+            messages.success(request, 'Status da interação atualizado com sucesso!')
+            return redirect('lead_interaction_list')
+    else:
+        form = LeadInteractionForm(instance=lead_interaction)
+    
+    context = {
+        'lead_interaction': lead_interaction,
+        'form': form,
+    }
+    return render(request, 'cars/lead_interaction_detail.html', context)
+
+@login_required
 def create_lead_interaction_manual(request):
     if request.method == 'POST':
         car_id = request.POST.get('car_id')
@@ -633,28 +638,39 @@ class AllCarsManagementView(LoginRequiredMixin, ListView): # NOVA VIEW: Gerencia
     context_object_name = 'all_cars_managed'
     paginate_by = 10
 
+    # Método dispatch para lidar com permissões e redirecionamentos ANTES de get_queryset/get_context_data
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        # Se o usuário NÃO tem permissão para gerenciar todos os carros
+        if not (user.is_superuser or \
+                user.groups.filter(name__in=['Administradores', 'Gerentes']).exists() or \
+                user.has_perm('cars.change_car') or \
+                user.has_perm('cars.delete_car')):
+            
+            # Se for um vendedor sem permissões gerais, redireciona para o painel de "Meus Carros"
+            if user.groups.filter(name='Vendedores').exists():
+                messages.warning(request, "Você não tem permissão para gerenciar todos os carros. Redirecionado para 'Meus Carros'.")
+                return redirect('seller_dashboard')
+            else:
+                # Para outros usuários sem permissão, mostra mensagem de erro e redireciona para o dashboard principal
+                messages.error(request, "Você não tem permissão para acessar esta página.")
+                return redirect('dashboard_home')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
-        user = self.request.user
-        # Admins/Gerentes veem todos os carros
-        if user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes']).exists():
-            return Car.objects.all().order_by('-data_cadastro')
-        # Vendedores só veem os seus próprios carros
-        elif user.groups.filter(name='Vendedores').exists():
-            messages.warning(self.request, "Você só pode visualizar seus próprios carros. Use 'Meus Carros'.")
-            return Car.objects.filter(vendedor=user).order_by('-data_cadastro')
-        return Car.objects.none() # Outros não veem nada
+        # Se o usuário chegou até aqui, ele tem permissão para ver todos os carros.
+        return Car.objects.all().order_by('-data_cadastro')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Adiciona a quilometragem em K e formata preço para todos os carros
-        context['all_cars_managed'] = add_kilometragem_k(context['all_cars_managed']) # Apply helper to fetched queryset
+        context['all_cars_managed'] = add_kilometragem_k(self.object_list) # Use self.object_list que é o resultado de get_queryset()
         user = self.request.user
         context['can_add_car'] = user.has_perm('cars.add_car')
         context['can_change_car'] = user.has_perm('cars.change_car')
         context['can_delete_car'] = user.has_perm('cars.delete_car')
         return context
-
-
+    
+    
 @method_decorator(login_required, name='dispatch')
 class DashboardHomeView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/dashboard_home.html'
