@@ -2,16 +2,6 @@
 {# Este template será incluído no dashboard_home.html para Admins/Gerentes #}
 {% load static %} {# Necessário para carregar arquivos estáticos como imagens mock #}
 
-{# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
-{% block extra_js_data %}
-<script>
-    const salesTrendLabels = {{ sales_trend_labels|safe }};
-    const salesTrendData = {{ sales_trend_data|safe }};
-    const conversionTrendLabels = {{ conversion_trend_labels|safe }};
-    const conversionTrendData = {{ conversion_trend_data|safe }};
-</script>
-{% endblock %}
-
 <h4 class="text-primary mb-3">Visão Geral da Empresa</h4>
 <div class="row g-3 mb-4">
     <div class="col-md-6 col-lg-3">
@@ -46,6 +36,14 @@
 </div>
 
 {# Seções de Gráficos #}
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="bg-white rounded p-4 shadow-sm" style="height: 400px;"> {# Adicionado altura fixa aqui #}
+                <h5 class="text-secondary mb-3">Tendência de Vendas</h5>
+                <canvas id="salesTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
 <div class="row g-3 mb-4">
     <div class="col-lg-8">
         <div class="bg-white rounded p-4 shadow-sm h-100">
@@ -97,12 +95,22 @@
     </div>
 </div>
 
+
 <div class="row g-3">
-    <div class="col-lg-12">
-        <div class="bg-white rounded p-4 shadow-sm h-100">
-            <h5 class="text-secondary mb-3">Taxa de Conversão</h5>
-            <canvas id="conversionRateChart"></canvas>
-        </div>
-    </div>
+    <div class="col-lg-12">
+        <div class="bg-white rounded p-4 shadow-sm" style="height: 400px;"> {# Adicionado altura fixa aqui #}
+            <h5 class="text-secondary mb-3">Taxa de Conversão</h5>
+            <canvas id="conversionRateChart"></canvas>
+        </div>
+    </div>
 </div>
 
+{# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
+{% block extra_js_data %}
+<script>
+    const salesTrendLabels = {{ sales_trend_labels|safe }};
+    const salesTrendData = {{ sales_trend_data|safe }};
+    const conversionTrendLabels = {{ conversion_trend_labels|safe }};
+    const conversionTrendData = {{ conversion_trend_data|safe }};
+</script>
+{% endblock %}
