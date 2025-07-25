@@ -320,6 +320,12 @@
     <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
     
 
+    {# Adicione a biblioteca Chart.js AQUI #}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    
+    {# Bloco para dados específicos de JS, deve vir antes do dashboard.js #}
+    {% block extra_js_data %}{% endblock %}
+    
     <script src="{% static 'js/main.js' %}"></script>
     {# Script customizado para o dashboard Kanban #}
     <script src="{% static 'js/dashboard.js' %}"></script>

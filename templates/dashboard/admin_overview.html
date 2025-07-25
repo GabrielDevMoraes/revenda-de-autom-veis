@@ -97,9 +97,11 @@
 </div>
 
 {# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
+{% block extra_js_data %}
 <script>
     const salesTrendLabels = {{ sales_trend_labels|safe }};
     const salesTrendData = {{ sales_trend_data|safe }};
     const conversionTrendLabels = {{ conversion_trend_labels|safe }};
     const conversionTrendData = {{ conversion_trend_data|safe }};
 </script>
+{% endblock %}
