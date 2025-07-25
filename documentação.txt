@@ -1,0 +1,168 @@
+# Projeto: Sistema de Gestão para Revenda de Automóveis (Cental)
+
+## Visão Geral do Projeto
+
+Este é um sistema web desenvolvido com Django (backend) e HTML/CSS/JavaScript (frontend) projetado para auxiliar a gestão de uma revendedora de automóveis. Ele oferece ferramentas para o controle de veículos, gerenciamento de leads e clientes, e visualização de métricas de desempenho através de um painel administrativo.
+
+## Funcionalidades Principais
+
+* **Painel Administrativo (Dashboard):**
+    * Exibição de KPIs importantes (Receita Mensal, Pedidos Totais, Clientes Ativos, Taxa de Conversão).
+    * Gráficos de tendência de vendas e taxa de conversão ao longo dos meses.
+    * **Ações Rápidas:**
+        * **Análise Rápida:** Modal pop-up com gráficos adicionais (ex: Carros por Status, Leads por Status).
+        * **Exportar Dados:** Permite exportar a lista de carros para um arquivo CSV.
+        * **Compartilhar:** Funcionalidade para compartilhar o relatório exportado (via e-mail ou cópia de link).
+        * **Novo Relatório:** Link para uma funcionalidade futura de geração de relatórios personalizados (inicialmente, um relatório padrão pode ser implementado).
+* **Gestão de Veículos (`Car`):** Cadastro, listagem, edição e exclusão de carros com informações detalhadas e status.
+* **Gestão de Leads (`LeadInteraction`):** Acompanhamento de leads através de um sistema Kanban, permitindo a atualização do status das interações.
+* **Gestão de Clientes (`Customer`):** Cadastro e gerenciamento de informações de clientes.
+* **Gestão de Serviços:**
+    * **Lavagens (`Lavagem`):** Controle sobre lavagens realizadas em veículos.
+    * **Vistorias (`Vistoria`):** Registro de vistorias de veículos.
+* **Sistema de Autenticação:** Login/Logout de usuários.
+
+## Configuração do Ambiente
+
+Siga os passos abaixo para configurar e rodar o projeto localmente.
+
+### Pré-requisitos
+
+* Python 3.8+
+* pip (gerenciador de pacotes Python)
+* Virtualenv (recomendado para isolamento de ambiente)
+
+### Instalação
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone [https://github.com/gabrieldevmoraes/revenda-de-autom-veis.git](https://github.com/gabrieldevmoraes/revenda-de-autom-veis.git)
+    cd revenda-de-autom-veis
+    ```
+2.  **Crie e ative um ambiente virtual:**
+    ```bash
+    python -m venv venv
+    # No Windows:
+    .\venv\Scripts\activate
+    # No macOS/Linux:
+    source venv/bin/activate
+    ```
+3.  **Instale as dependências:**
+    ```bash
+    pip install -r requirements.txt # (Assumindo que você tem um requirements.txt)
+    # Se não tiver, instale as bibliotecas Django, Pillow (para imagens) e as outras necessárias:
+    pip install Django Pillow
+    ```
+
+### Executando o Servidor
+
+1.  **Aplique as migrações do banco de dados:**
+    ```bash
+    python manage.py migrate
+    ```
+2.  **Crie um superusuário (para acesso ao admin e dashboard):**
+    ```bash
+    python manage.py createsuperuser
+    # Siga as instruções para criar nome de usuário, e-mail e senha.
+    ```
+3.  **Inicie o servidor de desenvolvimento:**
+    ```bash
+    python manage.py runserver
+    ```
+    O servidor estará disponível em `http://127.0.0.1:8000/`.
+    Acesse o painel em `http://127.0.0.1:8000/dashboard/`.
+
+### Migrações e Dados Iniciais
+
+* Sempre que houver mudanças nos modelos, execute:
+    ```bash
+    python manage.py makemigrations cars
+    python manage.py migrate
+    ```
+* Você pode popular o banco de dados com dados de teste usando fixtures ou scripts personalizados, se necessário.
+
+## Estrutura do Projeto
+
+* `mycarreseller/`: Diretório principal do projeto Django.
+    * `settings.py`: Configurações gerais do projeto.
+    * `urls.py`: URLs principais do projeto, incluindo as do app `cars`.
+    * `context_processors.py`: Processadores de contexto globais (ex: `GLOBAL_CONTACT_INFO`).
+* `cars/`: Aplicação Django principal para a lógica de negócios de carros e leads.
+    * `models.py`: Definições dos modelos de banco de dados (Car, LeadInteraction, Customer, Lavagem, Vistoria).
+    * `views.py`: Lógica das views (funções e classes que processam requisições e retornam respostas).
+    * `urls.py`: URLs específicas para as funcionalidades públicas de carros.
+    * `dashboard_urls.py`: URLs para as funcionalidades do dashboard (admin/gerente).
+    * `forms.py`: Formulários Django para interação com os modelos.
+    * `admin.py`: Configurações para o painel administrativo do Django.
+* `templates/`: Diretório para os templates HTML globais e templates de apps.
+    * `base.html`: Template base para todas as páginas.
+    * `dashboard/`: Templates específicos do dashboard.
+        * `admin_overview.html`: Visão geral do dashboard para admins/gerentes.
+        * `quick_analysis_modal.html`: Template para o modal de análise rápida.
+        * `car_form.html`, `car_wash_form.html`, etc.: Formulários para CRUD de entidades.
+* `static/`: Diretório para arquivos estáticos (CSS, JavaScript, imagens).
+    * `css/`, `js/`, `img/`: Subdiretórios para organizar os assets estáticos.
+    * `js/dashboard.js`: Lógica JavaScript para os gráficos, Kanban e ações rápidas do dashboard.
+* `media/`: Diretório para uploads de arquivos (ex: imagens de carros).
+
+## Componentes Chave (Django)
+
+### Modelos Importantes
+
+* **`Car`:**
+    * Representa um veículo. Inclui campos como `marca`, `modelo`, `ano`, `preco`, `quilometragem`, `status_veiculo` (Disponível, Vendido, Manutenção).
+    * Relacionamento: `vendedor` (ForeignKey para `User`).
+* **`LeadInteraction`:**
+    * Representa uma interação com um lead. Contém `customer` (ForeignKey), `car` (ForeignKey), `vendedor` (ForeignKey), `data_interacao`, `tipo_interacao`, `observacoes` e `status` (Novo, Contatado, Negociação, Finalizado). Usado no Kanban.
+* **`Customer`:**
+    * Representa um cliente ou potencial cliente.
+* **`Lavagem` e `Vistoria`:**
+    * Modelos para gerenciar serviços de lavagem e vistoria de veículos.
+
+### Views Principais (`cars/views.py`)
+
+* **`dashboard_home(request)`:**
+    * Lógica principal do dashboard, calcula KPIs e dados para os gráficos de tendência. Redireciona para `admin_overview.html` ou `seller_metrics.html` com base no perfil do usuário.
+* **`export_cars_csv(request)`:**
+    * Gera e permite o download de um arquivo CSV com todos os dados dos carros.
+* **`quick_analysis_data(request)`:**
+    * Endpoint AJAX para fornecer dados (em JSON) para os gráficos de "Carros por Status" e "Leads por Status" no modal de Análise Rápida.
+* **`LeadInteractionListView` (e outras views `ListView`/`CreateView`/`UpdateView`/`DeleteView`):**
+    * Implementam as operações CRUD (Criar, Ler, Atualizar, Deletar) para os diferentes modelos, utilizando as Generic Views do Django.
+* **`update_lead_status_kanban(request)`:**
+    * Endpoint AJAX para atualizar o status de um lead quando ele é arrastado e solto no Kanban.
+
+### URLs Relevantes (`cars/dashboard_urls.py`)
+
+* `/dashboard/`: Página inicial do painel.
+* `/dashboard/carros/`: Gestão de carros (listagem, adicionar, editar, deletar).
+* `/dashboard/leads/`: Gestão de leads (incluindo o Kanban).
+* `/dashboard/admin/exportar-carros-csv/`: Exporta dados de carros para CSV.
+* `/dashboard/admin/quick-analysis-data/`: Endpoint para dados dos gráficos de análise rápida.
+
+## Frontend (JavaScript/CSS)
+
+* **`static/js/main.js`:** Lógica JavaScript global do tema.
+* **`static/js/dashboard.js`:** Contém a lógica específica do dashboard:
+    * Inicialização dos gráficos Chart.js (Tendência de Vendas, Taxa de Conversão).
+    * Lógica para o sistema Kanban (arrastar e soltar leads).
+    * Lógica para o modal de "Análise Rápida", incluindo chamadas AJAX para buscar dados e inicializar os gráficos dentro do modal.
+    * Funcionalidade de "Compartilhar" para o relatório CSV.
+* **`static/css/style.css` e `static/css/bootstrap.min.css`:** Estilos CSS customizados e o framework Bootstrap.
+
+## Troubleshooting / Dicas
+
+* **Gráficos não aparecem ou estão bugados:**
+    * Verifique se `Chart.js` está carregado no seu `base.html` **antes** de `dashboard.js`.
+    * Certifique-se de que as variáveis de dados (ex: `salesTrendData`) são definidas no HTML **antes** de `dashboard.js` as usar.
+    * Se um gráfico estiver com altura "infinita", verifique se o `div` pai do `canvas` tem uma altura CSS definida (ex: `style="height: 400px;"`) e remova classes como `h-100` se houver conflito.
+    * Inspecione o console do navegador (`F12`) e a aba "Network" para erros JavaScript ou respostas 500/404 de chamadas AJAX.
+* **Erros no servidor (Internal Server Error 500):**
+    * O traceback completo no terminal do Django ou na página de erro do navegador (se `DEBUG=True`) é a chave. Ele indicará a linha exata e o tipo de erro (ex: `UnboundLocalError`, `AttributeError`).
+    * Problemas comuns incluem nomes de campos incorretos nos modelos (`brand` vs `marca`) ou variáveis Python sendo usadas antes de serem definidas.
+* **Permissões de Usuário:** Algumas funcionalidades do dashboard são restritas a usuários `is_superuser` ou `is_staff`.
+* **Variáveis de Contexto:** Variáveis como `GLOBAL_CONTACT_INFO` são definidas em `mycarreseller/context_processors.py` e ficam disponíveis em todos os templates.
+
+---
+
+Espero que esta documentação forneça uma excelente base para sua equipe! Se precisar de aprofundar em alguma seção ou de mais detalhes sobre pontos específicos, por favor, me avise.
