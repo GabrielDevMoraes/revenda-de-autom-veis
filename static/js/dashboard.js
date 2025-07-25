@@ -73,10 +73,10 @@ $(function() {
         new Chart(salesCtx, {
             type: 'line',
             data: {
-                labels: JSON.parse(salesTrendLabels), // Parseia a string JSON para um array JS
+                labels: salesTrendLabels, // Parseia a string JSON para um array JS
                 datasets: [{
                     label: 'Receita (R$)',
-                    data: JSON.parse(salesTrendData), // Parseia a string JSON para um array JS
+                    data: salesTrendData, // Parseia a string JSON para um array JS
                     borderColor: 'rgb(234, 0, 30)', // var(--bs-primary)
                     backgroundColor: 'rgba(234, 0, 30, 0.1)',
                     fill: true,
@@ -113,10 +113,10 @@ $(function() {
         new Chart(conversionCtx, {
             type: 'line',
             data: {
-                labels: JSON.parse(conversionTrendLabels), // Parseia a string JSON para um array JS
+                labels: conversionTrendLabels, // Parseia a string JSON para um array JS
                 datasets: [{
                     label: 'Taxa de Conversão (%)',
-                    data: JSON.parse(conversionTrendData), // Parseia a string JSON para um array JS
+                    data: conversionTrendData, // Parseia a string JSON para um array JS
                     borderColor: 'rgb(31, 46, 78)', // var(--bs-secondary)
                     backgroundColor: 'rgba(31, 46, 78, 0.1)',
                     fill: true,
