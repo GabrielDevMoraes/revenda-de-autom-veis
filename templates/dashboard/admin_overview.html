@@ -1,43 +1,105 @@
 {# templates/dashboard/admin_overview.html #}
 {# Este template será incluído no dashboard_home.html para Admins/Gerentes #}
+{% load static %} {# Necessário para carregar arquivos estáticos como imagens mock #}
 
 <h4 class="text-primary mb-3">Visão Geral da Empresa</h4>
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
         <div class="p-3 bg-white rounded shadow-sm text-center">
-            <h5 class="text-secondary">Total de Carros</h5>
-            <p class="display-6 text-primary">{{ total_cars }}</p>
+            <h5 class="text-secondary">Receita Mensal</h5>
+            <p class="display-6 text-primary">R${{ monthly_revenue|floatformat:2 }}</p>
+            {# Dados mock para comparação com mês anterior #}
+            <p class="text-muted small">+12.5% vs mês anterior</p>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
         <div class="p-3 bg-white rounded shadow-sm text-center">
-            <h5 class="text-secondary">Carros Disponíveis</h5>
-            <p class="display-6 text-success">{{ available_cars }}</p>
+            <h5 class="text-secondary">Pedidos Totais</h5>
+            <p class="display-6 text-info">{{ total_orders_this_month }}</p>
+            <p class="text-muted small">+8.3% vs mês anterior</p>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
         <div class="p-3 bg-white rounded shadow-sm text-center">
-            <h5 class="text-secondary">Vendas Concluídas</h5>
-            <p class="display-6 text-info">{{ total_sales }}</p>
+            <h5 class="text-secondary">Clientes Ativos</h5>
+            <p class="display-6 text-success">{{ active_customers_this_month }}</p>
+            <p class="text-muted small">+15.2% vs mês anterior</p>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
         <div class="p-3 bg-white rounded shadow-sm text-center">
-            <h5 class="text-secondary">Receita Total</h5>
-            <p class="display-6 text-primary">R${{ total_revenue|floatformat:2 }}</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="p-3 bg-white rounded shadow-sm text-center">
-            <h5 class="text-secondary">Total de Leads</h5>
-            <p class="display-6 text-warning">{{ total_leads }}</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="p-3 bg-white rounded shadow-sm text-center">
-            <h5 class="text-secondary">Novos Leads Hoje</h5>
-            <p class="display-6 text-info">{{ new_leads_today }}</p>
+            <h5 class="text-secondary">Taxa de Conversão</h5>
+            <p class="display-6 text-warning">{{ conversion_rate_this_month|floatformat:1 }}%</p>
+            <p class="text-muted small">+0.6% vs mês anterior</p>
         </div>
     </div>
 </div>
 
+{# Seções de Gráficos #}
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="bg-white rounded p-4 shadow-sm h-100">
+            <h5 class="text-secondary mb-3">Tendência de Vendas</h5>
+            <canvas id="salesTrendChart"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="bg-white rounded p-4 shadow-sm h-100">
+            <h5 class="text-secondary mb-3">Ações Rápidas</h5>
+            <ul class="list-unstyled">
+                <li class="mb-2"><a href="#" class="text-primary text-decoration-none"><i class="fas fa-file-alt me-2"></i> Novo Relatório</a></li>
+                <li class="mb-2"><a href="#" class="text-primary text-decoration-none"><i class="fas fa-chart-line me-2"></i> Análise Rápida</a></li>
+                <li class="mb-2"><a href="#" class="text-primary text-decoration-none"><i class="fas fa-download me-2"></i> Exportar Dados</a></li>
+                <li class="mb-2"><a href="#" class="text-primary text-decoration-none"><i class="fas fa-share-alt me-2"></i> Compartilhar</a></li>
+            </ul>
+            <h5 class="text-secondary mt-4 mb-3">Relatórios Recentes</h5>
+            <ul class="list-unstyled">
+                <li class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-dark"><i class="fas fa-chart-bar me-2"></i> Vendas Mensais</span>
+                    <div>
+                        <span class="badge bg-success">Concluído</span>
+                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i></a>
+                    </div>
+                </li>
+                <li class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-dark"><i class="fas fa-box me-2"></i> Análise de Produtos</span>
+                    <div>
+                        <span class="badge bg-warning">Processando</span>
+                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i></a>
+                    </div>
+                </li>
+                <li class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-dark"><i class="fas fa-calendar-alt me-2"></i> Performance Mensal</span>
+                    <div>
+                        <span class="badge bg-success">Concluído</span>
+                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i></a>
+                    </div>
+                </li>
+                <li class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-dark"><i class="fas fa-users me-2"></i> Clientes Top</span>
+                    <div>
+                        <span class="badge bg-success">Concluído</span>
+                        <a href="#" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-download"></i></a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-12">
+        <div class="bg-white rounded p-4 shadow-sm h-100">
+            <h5 class="text-secondary mb-3">Taxa de Conversão</h5>
+            <canvas id="conversionRateChart"></canvas>
+        </div>
+    </div>
+</div>
+
+{# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
+<script>
+    const salesTrendLabels = {{ sales_trend_labels|safe }};
+    const salesTrendData = {{ sales_trend_data|safe }};
+    const conversionTrendLabels = {{ conversion_trend_labels|safe }};
+    const conversionTrendData = {{ conversion_trend_data|safe }};
+</script>

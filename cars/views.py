@@ -29,24 +29,69 @@ def add_kilometragem_k(cars_queryset):
         car.quilometragem_k = car.quilometragem / 1000
     return cars_queryset
 
-# Função auxiliar para coletar dados do dashboard de administrador/gerente
+    #Função auxiliar para coletar dados do dashboard de administrador/gerente#
 def get_admin_dashboard_data():
+    """
+    Coleta dados de visão geral da empresa para administradores/gerentes.
+    Inclui métricas e dados mock para gráficos.
+    """
+    today = datetime.now().date()
+    start_of_month = today.replace(day=1)
+    
     total_cars = Car.objects.count()
     available_cars = Car.objects.filter(disponivel=True).count()
     total_sales = Sale.objects.count()
     total_revenue = Sale.objects.aggregate(total=Sum('preco_final'))['total'] or 0
     total_leads = LeadInteraction.objects.count()
-    new_leads_today = LeadInteraction.objects.filter(data_interacao__date=datetime.now().date()).count()
+    
+    # Métricas do mês atual
+    monthly_sales = Sale.objects.filter(data_venda__date__gte=start_of_month, data_venda__date__lte=today)
+    monthly_revenue = monthly_sales.aggregate(total=Sum('preco_final'))['total'] or 0
+    monthly_leads = LeadInteraction.objects.filter(data_interacao__date__gte=start_of_month, data_interacao__date__lte=today)
+    
+    # Clientes Ativos (exemplo: leads que não são 'Novo Contato' ou 'Fechado - Perdido' no mês)
+    active_customers_this_month = monthly_leads.exclude(status__in=['Novo Contato', 'Fechado - Perdido']).values('cliente').distinct().count()
 
+    # Taxa de Conversão (simplificada: Vendas Concluídas / Total de Leads)
+    conversion_rate = (monthly_sales.count() / monthly_leads.count() * 100) if monthly_leads.count() > 0 else 0
+
+    # Dados Mock para Gráficos (últimos 6 meses)
+    sales_trend_data = []
+    conversion_trend_data = []
+    months_labels = []
+    
+    for i in range(6, 0, -1): # Últimos 6 meses
+        month_start = (today - timedelta(days=30*i)).replace(day=1) # Aproximado
+        month_end = (month_start + timedelta(days=30)).replace(day=1) - timedelta(days=1) # Fim do mês
+        
+        # Dados de vendas mock
+        mock_sales = random.randint(5000, 20000) if i != 1 else float(monthly_revenue) # Mês atual usa o valor real
+        sales_trend_data.append(round(mock_sales, 2))
+
+        # Dados de conversão mock
+        mock_conversion = random.uniform(2.0, 8.0) if i != 1 else round(conversion_rate, 2) # Mês atual usa o valor real
+        conversion_trend_data.append(round(mock_conversion, 2))
+        
+        months_labels.append(month_start.strftime('%b').lower()) # Ex: 'jan', 'fev'
+    
     return {
         'total_cars': total_cars,
         'available_cars': available_cars,
         'total_sales': total_sales,
         'total_revenue': total_revenue,
         'total_leads': total_leads,
-        'new_leads_today': new_leads_today,
-    }
+        'new_leads_today': LeadInteraction.objects.filter(data_interacao__date=today).count(),
+        
+        'monthly_revenue': monthly_revenue,
+        'total_orders_this_month': monthly_sales.count(),
+        'active_customers_this_month': active_customers_this_month,
+        'conversion_rate_this_month': round(conversion_rate, 2),
 
+        'sales_trend_labels': months_labels,
+        'sales_trend_data': sales_trend_data,
+        'conversion_trend_labels': months_labels,
+        'conversion_trend_data': conversion_trend_data,
+    }
 
 @method_decorator(login_required, name='dispatch')
 class InspectionListView(LoginRequiredMixin, ListView):
@@ -695,6 +740,7 @@ class DashboardHomeView(LoginRequiredMixin, TemplateView):
             all_leads = LeadInteraction.objects.all().order_by('-ultima_atualizacao')
         else:
             all_leads = LeadInteraction.objects.none()
+        
 
         leads_by_status = {status_key: [] for status_key, status_label in LeadInteraction.STATUS_INTERACTION_CHOICES}
         for lead in all_leads:
@@ -706,6 +752,8 @@ class DashboardHomeView(LoginRequiredMixin, TemplateView):
 
         if is_admin_or_manager:
             context.update(get_admin_dashboard_data())
+            today = datetime.now().date()
+            start_of_month = today.replace(day=1)
 
         if is_seller:
             today = datetime.now().date()
