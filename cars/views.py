@@ -22,6 +22,58 @@ import random
 from datetime import datetime, timedelta
 import urllib.parse
 import json
+import csv
+from django.http import JsonResponse # Adicionar este import
+from django.http import HttpResponse
+from .models import Car # Certifique-se de que Car está importado
+
+def export_cars_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="carros.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Marca', 'Modelo', 'Ano', 'Preço', 'Status', 'Quilometragem']) # Cabeçalho do CSV
+
+    cars = Car.objects.all().order_by('marca' , 'modelo')
+    for car in cars:
+        writer.writerow([
+            car.marca,
+            car.modelo,
+            car.ano,
+            str(car.preco), # Converte Decimal para string para o CSV
+            car.get_status_veiculo_display(), # Pega o valor legível do ChoiceField
+            car.quilometragem
+        ])
+
+    return response
+
+def quick_analysis_data(request):
+    # Contagem de carros por status
+    cars_by_status = Car.objects.values('status_veiculo').annotate(count=Count('status_veiculo'))
+    car_labels = [entry['status_veiculo'] for entry in cars_by_status]
+    car_data = [entry['count'] for entry in cars_by_status]
+
+    # Mapear chaves para valores legíveis se necessário
+    # Ex: {'DISPONIVEL': 'Disponível', 'VENDIDO': 'Vendido'}
+    status_map_car = dict(Car.STATUS_VEICULO_CHOICES)
+    car_labels_display = [status_map_car.get(label, label) for label in car_labels]
+
+    # Contagem de leads por status
+    leads_by_status = LeadInteraction.objects.values('status').annotate(count=Count('status'))
+    lead_labels = [entry['status'] for entry in leads_by_status]
+    lead_data = [entry['count'] for entry in leads_by_status]
+    
+    # Mapear chaves para valores legíveis se necessário
+    status_map_lead = dict(LeadInteraction.STATUS_CHOICES)
+    lead_labels_display = [status_map_lead.get(label, label) for label in lead_labels]
+
+    data = {
+        'carsByStatusLabels': car_labels_display,
+        'carsByStatusData': car_data,
+        'leadsByStatusLabels': lead_labels_display,
+        'leadsByStatusData': lead_data,
+    }
+    return JsonResponse(data)
 
 # Função auxiliar para adicionar a quilometragem em "K" aos objetos Carro
 def add_kilometragem_k(cars_queryset):

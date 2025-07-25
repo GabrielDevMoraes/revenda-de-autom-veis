@@ -155,3 +155,99 @@ $(function() {
         });
     }
 });
+// ... (seu código existente Chart.js e Kanban) ...
+
+    // Lógica para carregar e renderizar gráficos do modal de Análise Rápida
+    $('#quickAnalysisModal').on('shown.bs.modal', function () {
+        $.ajax({
+            url: '/dashboard/admin/quick-analysis-data/', // URL da sua nova view
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Gráfico de Carros por Status (Gráfico de Barras)
+                const carsCtx = document.getElementById('carsByStatusChart').getContext('2d');
+                new Chart(carsCtx, {
+                    type: 'bar', // Pode ser 'pie' ou 'doughnut' também
+                    data: {
+                        labels: data.carsByStatusLabels,
+                        datasets: [{
+                            label: 'Número de Carros',
+                            data: data.carsByStatusData,
+                            backgroundColor: [
+                                'rgba(234, 0, 30, 0.7)', // Cor para Disponível
+                                'rgba(31, 46, 78, 0.7)', // Cor para Vendido
+                                'rgba(255, 159, 64, 0.7)', // Cor para Manutenção
+                                'rgba(75, 192, 192, 0.7)', // Adicione mais cores conforme seus status
+                            ],
+                            borderColor: [
+                                'rgb(234, 0, 30)',
+                                'rgb(31, 46, 78)',
+                                'rgb(255, 159, 64)',
+                                'rgb(75, 192, 192)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0 // Garante que o eixo Y mostre números inteiros
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Gráfico de Leads por Status (Gráfico de Rosca/Doughnut)
+                const leadsCtx = document.getElementById('leadsByStatusChart').getContext('2d');
+                new Chart(leadsCtx, {
+                    type: 'doughnut', // Pode ser 'pie' ou 'bar' também
+                    data: {
+                        labels: data.leadsByStatusLabels,
+                        datasets: [{
+                            label: 'Número de Leads',
+                            data: data.leadsByStatusData,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)', // Cor para Novo
+                                'rgba(255, 206, 86, 0.7)', // Cor para Contatado
+                                'rgba(153, 102, 255, 0.7)', // Cor para Negociação
+                                'rgba(255, 99, 132, 0.7)', // Cor para Finalizado
+                                // Adicione mais cores conforme seus status
+                            ],
+                            borderColor: [
+                                'rgb(54, 162, 235)',
+                                'rgb(255, 206, 86)',
+                                'rgb(153, 102, 255)',
+                                'rgb(255, 99, 132)',
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error("Erro ao carregar dados de análise rápida:", xhr.responseText);
+                alert("Não foi possível carregar os dados de análise rápida. Tente novamente.");
+            }
+        });
+    });

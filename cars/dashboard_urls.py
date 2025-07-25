@@ -37,5 +37,7 @@ urlpatterns = [
 
     # URL para Admin/Gerente
     path('admin-overview/', views.AdminOverviewView.as_view(), name='admin_overview'),
+    path('admin/exportar-carros-csv/', views.export_cars_csv, name='export_cars_csv'),
+    path('admin/quick-analysis-data/', views.quick_analysis_data, name='quick_analysis_data'), # NOVA LINHA
 ]
 
