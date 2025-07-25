@@ -54,17 +54,16 @@ def quick_analysis_data(request):
     car_data = [entry['count'] for entry in cars_by_status]
 
     # Mapear chaves para valores legíveis se necessário
-    # Ex: {'DISPONIVEL': 'Disponível', 'VENDIDO': 'Vendido'}
     status_map_car = dict(Car.STATUS_VEICULO_CHOICES)
     car_labels_display = [status_map_car.get(label, label) for label in car_labels]
 
     # Contagem de leads por status
-    leads_by_status = LeadInteraction.objects.values('status').annotate(count=Count('status'))
-    lead_labels = [entry['status'] for entry in leads_by_status]
-    lead_data = [entry['count'] for entry in leads_by_status]
+    leads_by_status = LeadInteraction.objects.values('status').annotate(count=Count('status')) # ESTAS LINHAS DEVEM VIR ANTES
+    lead_labels = [entry['status'] for entry in leads_by_status] # ESTAS LINHAS DEVEM VIR ANTES
+    lead_data = [entry['count'] for entry in leads_by_status] # ESTAS LINHAS DEVEM VIR ANTES
     
     # Mapear chaves para valores legíveis se necessário
-    status_map_lead = dict(LeadInteraction.STATUS_CHOICES)
+    status_map_lead = dict(LeadInteraction._meta.get_field('status').choices)
     lead_labels_display = [status_map_lead.get(label, label) for label in lead_labels]
 
     data = {
