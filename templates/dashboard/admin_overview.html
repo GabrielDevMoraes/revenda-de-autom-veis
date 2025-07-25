@@ -2,6 +2,16 @@
 {# Este template será incluído no dashboard_home.html para Admins/Gerentes #}
 {% load static %} {# Necessário para carregar arquivos estáticos como imagens mock #}
 
+{# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
+{% block extra_js_data %}
+<script>
+    const salesTrendLabels = {{ sales_trend_labels|safe }};
+    const salesTrendData = {{ sales_trend_data|safe }};
+    const conversionTrendLabels = {{ conversion_trend_labels|safe }};
+    const conversionTrendData = {{ conversion_trend_data|safe }};
+</script>
+{% endblock %}
+
 <h4 class="text-primary mb-3">Visão Geral da Empresa</h4>
 <div class="row g-3 mb-4">
     <div class="col-md-6 col-lg-3">
@@ -96,12 +106,3 @@
     </div>
 </div>
 
-{# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
-{% block extra_js_data %}
-<script>
-    const salesTrendLabels = {{ sales_trend_labels|safe }};
-    const salesTrendData = {{ sales_trend_data|safe }};
-    const conversionTrendLabels = {{ conversion_trend_labels|safe }};
-    const conversionTrendData = {{ conversion_trend_data|safe }};
-</script>
-{% endblock %}
