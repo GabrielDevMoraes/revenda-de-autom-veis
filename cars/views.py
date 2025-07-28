@@ -26,6 +26,121 @@ import csv
 from django.http import JsonResponse # Adicionar este import
 from django.http import HttpResponse
 from .models import Car # Certifique-se de que Car está importado
+from django.utils import timezone # Importe timezone
+from django.db.models.functions import TruncMonth
+
+
+def admin_dashboard_view(request):
+    end_date = timezone.now().date()
+    start_date_sales = end_date - timedelta(days=365) # Últimos 12 meses para vendas
+    start_date_conversion = end_date - timedelta(days=180) # Últimos 6 meses para conversão, se preferir
+
+    # --- Dados para Tendência de Vendas (salesTrendChart) ---
+    # Agora usando o modelo 'Sale' e 'preco_final' para o valor da venda
+    sales_data_query = Sale.objects.filter(
+        data_venda__range=[start_date_sales, end_date] # Use o campo de data de venda do seu modelo Sale
+    ).annotate(
+        month=TruncMonth('data_venda')
+    ).values('month').annotate(
+        total_revenue=Sum('preco_final') # Use o campo de valor final do seu modelo Sale
+    ).order_by('month')
+
+    sales_trend_labels = []
+    sales_trend_data = []
+
+    current_month = start_date_sales.replace(day=1)
+    while current_month <= end_date:
+        month_label = current_month.strftime('%b/%Y') # Formato: Jan/2024
+        sales_trend_labels.append(month_label)
+        
+        # O `next` precisa buscar os dados gerados por `sales_data_query`
+        found_month_data = next((item for item in sales_data_query if item['month'].month == current_month.month and item['month'].year == current_month.year), None)
+        sales_trend_data.append(float(found_month_data['total_revenue']) if found_month_data else 0)
+        
+        if current_month.month == 12:
+            current_month = current_month.replace(year=current_month.year + 1, month=1)
+        else:
+            current_month = current_month.replace(month=current_month.month + 1)
+
+    # --- Dados para Taxa de Conversão (conversionRateChart) ---
+    # A lógica para LeadInteraction está correta aqui, LeadInteraction já está importado.
+    conversion_data_raw = LeadInteraction.objects.filter(
+        data_interacao__range=[start_date_conversion, end_date]
+    ).annotate(
+        month=TruncMonth('data_interacao')
+    ).values('month').order_by('month')
+
+    conversion_trend_labels = []
+    conversion_trend_data = []
+
+    current_month_conv = start_date_conversion.replace(day=1)
+    while current_month_conv <= end_date:
+        month_label_conv = current_month_conv.strftime('%b/%Y')
+        conversion_trend_labels.append(month_label_conv)
+
+        total_leads_month = LeadInteraction.objects.filter(
+            data_interacao__year=current_month_conv.year,
+            data_interacao__month=current_month_conv.month
+        ).count()
+        
+        converted_leads_month = LeadInteraction.objects.filter(
+            data_interacao__year=current_month_conv.year,
+            data_interacao__month=current_month_conv.month,
+            status='Fechado - Ganho' # Use o status exato que indica uma venda/conversão
+        ).count()
+        
+        conversion_rate = (converted_leads_month / total_leads_month * 100) if total_leads_month > 0 else 0
+        conversion_trend_data.append(round(conversion_rate, 1))
+
+        if current_month_conv.month == 12:
+            current_month_conv = current_month_conv.replace(year=current_month_conv.year + 1, month=1)
+        else:
+            current_month_conv = current_month_conv.replace(month=current_month_conv.month + 1)
+
+
+    # --- Outros dados para os cards de Visão Geral ---
+    # Agora usando o modelo 'Sale' e 'preco_final' para o valor da venda
+    monthly_revenue = Sale.objects.filter( # Usando o modelo Sale
+        data_venda__year=end_date.year,
+        data_venda__month=end_date.month
+    ).aggregate(Sum('preco_final'))['preco_final__sum'] or 0 # Campo de agregação ajustado
+
+    total_orders_this_month = Sale.objects.filter( # Usando o modelo Sale
+        data_venda__year=end_date.year,
+        data_venda__month=end_date.month
+    ).count()
+
+    # Adapte esta parte se 'Customer' não tiver uma relação direta com 'Sale' pela 'data_venda'
+    # Você pode precisar de uma query JOIN ou buscar clientes de `LeadInteraction` com status 'Fechado - Ganho'
+    active_customers_this_month = Customer.objects.filter(
+        # Exemplo: Assumindo que Customer tem uma relação reversa 'sale_set' com Sale
+        sale__data_venda__year=end_date.year,
+        sale__data_venda__month=end_date.month
+    ).distinct().count()
+
+    # Taxa de Conversão do mês atual (LeadInteraction já está correto aqui)
+    total_leads_month_current = LeadInteraction.objects.filter(
+        data_interacao__year=end_date.year,
+        data_interacao__month=end_date.month
+    ).count()
+    converted_leads_month_current = LeadInteraction.objects.filter(
+        data_interacao__year=end_date.year,
+        data_interacao__month=end_date.month,
+        status='Fechado - Ganho' # Status que indica conversão
+    ).count()
+    conversion_rate_this_month = (converted_leads_month_current / total_leads_month_current * 100) if total_leads_month_current > 0 else 0
+
+    context = {
+        'monthly_revenue': monthly_revenue,
+        'total_orders_this_month': total_orders_this_month,
+        'active_customers_this_month': active_customers_this_month,
+        'conversion_rate_this_month': round(conversion_rate_this_month, 1), # Arredonda para 1 casa decimal no contexto
+        'sales_trend_labels': sales_trend_labels,
+        'sales_trend_data': sales_trend_data,
+        'conversion_trend_labels': conversion_trend_labels,
+        'conversion_trend_data': conversion_trend_data,
+    }
+    return render(request, 'dashboard/admin_overview.html', context)
 
 def export_cars_csv(request):
     response = HttpResponse(content_type='text/csv')
