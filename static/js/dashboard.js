@@ -194,7 +194,7 @@ $(function() {
                         plugins: {
                             legend: {
                                 display: true,
-                                position: 'right', // Ou 'bottom', dependendo do que fica melhor no seu layout
+                                position: 'bottom', // Ou 'bottom', dependendo do que fica melhor no seu layout
                                 labels: {
                                     // Esta função personaliza o que aparece na legenda
                                     generateLabels: function(chart) {
