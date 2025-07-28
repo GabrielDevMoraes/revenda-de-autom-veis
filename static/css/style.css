@@ -953,4 +953,18 @@
 }
 /*** copyright end ***/
 
+/* Estilo para um modal extra largo */
+.modal-extra-wide {
+    max-width: 1600px;
+    max-height: 1600px;
+    margin-top: auto; /* Altere este valor para a largura máxima desejada (ex: 1400px, 1600px) */
+    width: 97%;      /* Garante que ele ocupe 95% da largura da tela, mas não mais que max-width */
+}
 
+/* Opcional: Centraliza o conteúdo do modal em telas muito largas */
+.modal-extra-wide .modal-content {
+    margin: auto;
+}
+.chart-container {
+    position: relative;
+}

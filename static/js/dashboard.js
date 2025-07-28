@@ -128,7 +128,7 @@ $(function() {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false
+                        display: false,
                     }
                 },
                 scales: {
@@ -194,14 +194,35 @@ $(function() {
                         plugins: {
                             legend: {
                                 display: true,
-                                position: 'right'
+                                position: 'right', // Ou 'bottom', dependendo do que fica melhor no seu layout
+                                labels: {
+                                    // Esta função personaliza o que aparece na legenda
+                                    generateLabels: function(chart) {
+                                        const dataset = chart.data.datasets[0]; // Assume que você tem apenas um dataset
+                                        return chart.data.labels.map((label, i) => {
+                                            const backgroundColor = dataset.backgroundColor[i];
+                                            return {
+                                                text: label, // O texto da legenda será o nome do status (label do data.labels)
+                                                fillStyle: backgroundColor, // A cor será a cor do background da barra
+                                                strokeStyle: backgroundColor,
+                                                lineWidth: 1,
+                                                // hidden: chart.isDatasetVisible(0) ? false : true, // Para permitir esconder/mostrar clicando
+                                                // hidden: !chart.isDatasetVisible(0) || !chart.getDatasetMeta(0).data[i].hidden, // Permite clicar para ocultar
+                                                hidden: !chart.isDatasetVisible(0) || chart.getDatasetMeta(0).data[i].hidden,
+                                                // Essas duas propriedades são importantes para que o clique na legenda funcione:
+                                                datasetIndex: 0, // Indica qual dataset este item de legenda pertence
+                                                index: i // O índice do dado (barra) ao qual este item de legenda corresponde
+                                            };
+                                        });
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    precision: 0 // Garante que o eixo Y mostre números inteiros
+                                    precision: 0
                                 }
                             }
                         }

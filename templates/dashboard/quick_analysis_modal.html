@@ -1,20 +1,20 @@
 <div class="modal fade" id="quickAnalysisModal" tabindex="-1" aria-labelledby="quickAnalysisModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-extra-wide">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="quickAnalysisModalLabel">Análise Rápida Detalhada</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row g-3">
+                <div class="row g-2">
                     <div class="col-md-6">
-                        <div class="bg-white rounded p-3 shadow-sm" style="height: 350px;"> {# 'h-100' removido #}
+                        <div class="bg-white rounded p-3 shadow-sm" style="position: relative; height: 400px; width: 90%; "> {# 'h-100' removido #}
                             <h6 class="text-secondary mb-3">Carros por Status</h6>
                             <canvas id="carsByStatusChart"></canvas>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="bg-white rounded p-3 shadow-sm" style="height: 350px;"> {# 'h-100' removido #}
+                        <div class="bg-white rounded p-3 shadow-sm" style=" position: relative; height: 350px; width: 100%;"> {# 'h-100' removido #}
                             <h6 class="text-secondary mb-3">Leads por Status</h6>
                             <canvas id="leadsByStatusChart"></canvas>
                         </div>
