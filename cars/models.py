@@ -2,8 +2,20 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone 
 
 class Car(models.Model):
+    STATUS_INTERACTION_CHOICES = [
+        ('Novo Contato', 'Novo Contato'),
+        ('Em Andamento', 'Em Andamento (Tirando Dúvidas)'),
+        ('Negociação', 'Negociação'),
+        ('Aguardando Resposta', 'Aguardando Resposta do Cliente'),
+        ('Fechado - Ganho', 'Fechado - Venda Concluída'),
+        ('Fechado - Perdido', 'Fechado - Venda Perdida'),
+        ('Follow-up', 'Follow-up Necessário'),
+        ('Em Andamento (WhatsApp)', 'Em Andamento (WhatsApp)'),
+    ]
+    
     MARCA_CHOICES = [
         ('Mercedes Benz', 'Mercedes Benz'),
         ('Toyota', 'Toyota'),
@@ -85,7 +97,16 @@ class Sale(models.Model):
     carro = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name="Carro Vendido")
     cliente = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Comprador")
     preco_final = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Preço Final da Venda")
-    data_venda = models.DateTimeField(auto_now_add=True, verbose_name="Data da Venda")
+    
+    # ALTERADO AQUI:
+    # Opção 1: Registra a data na criação, mas permite edição manual.
+    # Se você vai criar a Sale no momento da finalização do Lead, esta é uma boa opção.
+    data_venda = models.DateTimeField(default=timezone.now, verbose_name="Data da Venda")
+
+    # Opção 2 (Alternativa): Atualiza automaticamente a cada salvamento do objeto.
+    # data_venda = models.DateTimeField(auto_now=True, verbose_name="Data da Venda") 
+    # Esta opção faz a data_venda sempre ser a última data que o objeto Sale foi salvo,
+    # o que pode ser útil se o objeto é salvo no momento da finalização da venda.
 
     def __str__(self):
         return f"Venda de {self.carro.modelo} para {self.cliente.nome_completo} em {self.data_venda.strftime('%d/%m/%Y')}"
@@ -213,10 +234,19 @@ class Lavagem(models.Model):
         ]
 
 class LeadInteraction(models.Model):
-    """
-    Modelo para registrar interações de leads/clientes com carros específicos.
-    Funciona como um mini-CRM para o vendedor.
-    """
+
+    # NOVO CAMPO para registrar a data exata da conversão
+    data_conversao = models.DateTimeField(null=True, blank=True, verbose_name="Data da Conversão") # Adicionado
+
+    def save(self, *args, **kwargs):
+        # Quando o status muda para 'Fechado - Ganho' e a data_conversao ainda não foi definida
+        if self.status == 'Fechado - Ganho' and not self.data_conversao:
+            self.data_conversao = timezone.now() # Registra a data da conversão
+        elif self.status != 'Fechado - Ganho' and self.data_conversao:
+            # Se o status voltar a não ser 'Fechado - Ganho', limpa a data de conversão (opcional, mas boa prática)
+            self.data_conversao = None 
+        super().save(*args, **kwargs)
+
     STATUS_INTERACTION_CHOICES = [
         ('Novo Contato', 'Novo Contato'),
         ('Em Andamento', 'Em Andamento (Tirando Dúvidas)'),
@@ -228,6 +258,9 @@ class LeadInteraction(models.Model):
         ('Em Andamento (WhatsApp)', 'Em Andamento (WhatsApp)'),
     ]
 
+    status = models.CharField(max_length=50, choices=STATUS_INTERACTION_CHOICES, default='Novo Contato', verbose_name="Status da Interação")
+    data_interacao = models.DateTimeField(auto_now_add=True, verbose_name="Data da Interação") # Data de criação do lead
+    ultima_atualizacao = models.DateTimeField(auto_now=True, verbose_name="Última Atualização") # Data da última modificação
     carro = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name="Carro de Interesse")
     cliente = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Cliente/Lead")
     vendedor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Vendedor Responsável")
