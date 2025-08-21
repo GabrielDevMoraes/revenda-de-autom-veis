@@ -5,6 +5,7 @@
 {% block title %}Painel de Gestão - Cental{% endblock %}
 
 {% block content %}
+    <!-- Header Start -->
     <div class="container-fluid bg-breadcrumb">
         <div class="container text-center py-5" style="max-width: 900px;">
             <h4 class="text-white display-4 mb-4 wow fadeInDown" data-wow-delay="0.1s">Painel de Gestão</h4>
@@ -14,6 +15,9 @@
             </ol>    
         </div>
     </div>
+    <!-- Header End -->
+
+    <!-- Dashboard Content Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
             <div class="row g-4">
@@ -33,7 +37,7 @@
                                 <li class="list-group-item bg-light"><a href="{% url 'car_wash_list' %}" class="text-dark"><i class="fas fa-spray-can me-2"></i> Lavagens</a></li>
                             {% endif %}
                             
-                            {# NOVO: Gerenciamento de Carros (CRUD) - Para Admins/Gerentes #}
+                            {# NOVO: Gerenciamento de Carros (CRUD) #}
                             {% if perms.cars.add_car or perms.cars.change_car or perms.cars.delete_car %}
                                 <li class="list-group-item bg-light mt-3">
                                     <h6 class="text-secondary mb-2">Gerenciar Carros</h6>
@@ -126,4 +130,5 @@
             </div>
         </div>
     </div>
-    {% endblock %}
+    <!-- Dashboard Content End -->
+{% endblock %}

@@ -1,6 +1,6 @@
 {# templates/dashboard/admin_overview.html #}
 {# Este template será incluído no dashboard_home.html para Admins/Gerentes #}
-{% load static %} {# Necessário para carregar arquivos estáticos como imagens mock #}
+{% load static %} 
 
 <h4 class="text-primary mb-3">Visão Geral da Empresa</h4>
 <div class="row g-3 mb-4">
@@ -36,14 +36,14 @@
 </div>
 
 {# Seções de Gráficos e Ações Rápidas (lado a lado) #}
-<div class="row g-3 mb-4"> {# Esta é a linha que contém os dois elementos lado a lado #}
-    <div class="col-lg-8"> {# Este ocupa 8 colunas para telas grandes #}
-        <div class="bg-white rounded p-4 shadow-sm" style="height: 400px;"> {# Adicionado altura fixa aqui #}
-                <h5 class="text-secondary mb-3">Tendência de Vendas</h5>
-                <canvas id="salesTrendChart"></canvas>
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="bg-white rounded p-4 shadow-sm h-100">
+            <h5 class="text-secondary mb-3">Tendência de Vendas</h5>
+            <canvas id="salesTrendChart"></canvas>
         </div>
     </div>
-    <div class="col-lg-4"> {# Este ocupa 4 colunas para telas grandes #}
+    <div class="col-lg-4">
         <div class="bg-white rounded p-4 shadow-sm h-100">
             <h5 class="text-secondary mb-3">Ações Rápidas</h5>
             <ul class="list-unstyled">
@@ -85,26 +85,129 @@
             </ul>
         </div>
     </div>
-</div> {# Fim da linha que contém o gráfico de Tendência de Vendas e Ações Rápidas #}
-
-{# Gráfico de Taxa de Conversão (abaixo dos anteriores) #}
+</div>
 <div class="row g-3">
     <div class="col-lg-12">
-        <div class="bg-white rounded p-4 shadow-sm" style="height: 400px;">
+        <div class="bg-white rounded p-4 shadow-sm h-100">
             <h5 class="text-secondary mb-3">Taxa de Conversão</h5>
             <canvas id="conversionRateChart"></canvas>
         </div>
     </div>
 </div>
-
-{# Dados para os gráficos (passados do contexto da view para o JavaScript) #}
-{% block extra_js_data %}
-<script>
-    const salesTrendLabels = {{ sales_trend_labels|safe }};
-    const salesTrendData = {{ sales_trend_data|safe }};
-    const conversionTrendLabels = {{ conversion_trend_labels|safe }};
-    const conversionTrendData = {{ conversion_trend_data|safe }};
+{# Tags de script JSON para passar dados de forma segura #}
+<script id="salesTrendLabelsJson" type="application/json">
+    {{ sales_trend_labels|safe }}
 </script>
-{% endblock %}
+<script id="salesTrendDataJson" type="application/json">
+    {{ sales_trend_data|safe }}
+</script>
+<script id="conversionTrendLabelsJson" type="application/json">
+    {{ conversion_trend_labels|safe }}
+</script>
+<script id="conversionTrendDataJson" type="application/json">
+    {{ conversion_trend_data|safe }}
+</script>
+
+{# Script de inicialização dos gráficos #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart !== 'undefined' && document.getElementById('salesTrendChart')) {
+            const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
+            const conversionCtx = document.getElementById('conversionRateChart').getContext('2d');
+            
+            // Lê os dados das tags de script JSON
+            const salesTrendLabels = JSON.parse(document.getElementById('salesTrendLabelsJson').textContent);
+            const salesTrendData = JSON.parse(document.getElementById('salesTrendDataJson').textContent);
+            const conversionTrendLabels = JSON.parse(document.getElementById('conversionTrendLabelsJson').textContent);
+            const conversionTrendData = JSON.parse(document.getElementById('conversionTrendDataJson').textContent);
+
+            // Gráfico de Tendência de Vendas
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: salesTrendLabels,
+                    datasets: [{
+                        label: 'Receita (R$)',
+                        data: salesTrendData,
+                        borderColor: 'rgb(234, 0, 30)',
+                        backgroundColor: 'rgba(234, 0, 30, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Receita (R$)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Mês'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Taxa de Conversão
+            new Chart(conversionCtx, {
+                type: 'line',
+                data: {
+                    labels: conversionTrendLabels,
+                    datasets: [{
+                        label: 'Taxa de Conversão (%)',
+                        data: conversionTrendData,
+                        borderColor: 'rgb(31, 46, 78)',
+                        backgroundColor: 'rgba(31, 46, 78, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Taxa de Conversão (%)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Mês'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
 
 {% include 'dashboard/quick_analysis_modal.html' %}
