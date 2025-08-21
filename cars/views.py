@@ -135,10 +135,10 @@ def admin_dashboard_view(request):
         'total_orders_this_month': total_orders_this_month,
         'active_customers_this_month': active_customers_this_month,
         'conversion_rate_this_month': round(conversion_rate_this_month, 1), # Arredonda para 1 casa decimal no contexto
-        'sales_trend_labels': sales_trend_labels,
-        'sales_trend_data': sales_trend_data,
-        'conversion_trend_labels': conversion_trend_labels,
-        'conversion_trend_data': conversion_trend_data,
+        'sales_trend_labels': json.dumps(sales_trend_labels),
+        'sales_trend_data': json.dumps(sales_trend_data),
+        'conversion_trend_labels': json.dumps(conversion_trend_labels),
+        'conversion_trend_data': json.dumps(conversion_trend_data),
     }
     return render(request, 'dashboard/admin_overview.html', context)
 
@@ -199,9 +199,9 @@ def add_kilometragem_k(cars_queryset):
 def get_admin_dashboard_data():
     """
     Coleta dados de visão geral da empresa para administradores/gerentes.
-    Inclui métricas e dados mock para gráficos.
+    Inclui métricas e dados para gráficos.
     """
-    today = datetime.now().date()
+    today = timezone.now().date()
     start_of_month = today.replace(day=1)
     
     total_cars = Car.objects.count()
@@ -211,9 +211,9 @@ def get_admin_dashboard_data():
     total_leads = LeadInteraction.objects.count()
     
     # Métricas do mês atual
-    monthly_sales = Sale.objects.filter(data_venda__date__gte=start_of_month, data_venda__date__lte=today)
+    monthly_sales = Sale.objects.filter(data_venda__gte=start_of_month, data_venda__lte=today)
     monthly_revenue = monthly_sales.aggregate(total=Sum('preco_final'))['total'] or 0
-    monthly_leads = LeadInteraction.objects.filter(data_interacao__date__gte=start_of_month, data_interacao__date__lte=today)
+    monthly_leads = LeadInteraction.objects.filter(data_interacao__gte=start_of_month, data_interacao__lte=today)
     
     # Clientes Ativos (exemplo: leads que não são 'Novo Contato' ou 'Fechado - Perdido' no mês)
     active_customers_this_month = monthly_leads.exclude(status__in=['Novo Contato', 'Fechado - Perdido']).values('cliente').distinct().count()
@@ -221,24 +221,25 @@ def get_admin_dashboard_data():
     # Taxa de Conversão (simplificada: Vendas Concluídas / Total de Leads)
     conversion_rate = (monthly_sales.count() / monthly_leads.count() * 100) if monthly_leads.count() > 0 else 0
 
-    # Dados Mock para Gráficos (últimos 6 meses)
+    # Dados para Gráficos (últimos 6 meses)
     sales_trend_data = []
     conversion_trend_data = []
     months_labels = []
     
-    for i in range(6, 0, -1): # Últimos 6 meses
-        month_start = (today - timedelta(days=30*i)).replace(day=1) # Aproximado
-        month_end = (month_start + timedelta(days=30)).replace(day=1) - timedelta(days=1) # Fim do mês
+    for i in range(5, -1, -1): # Últimos 6 meses
+        month_start = (today - timedelta(days=30*i)).replace(day=1)
+        month_end = (month_start + timedelta(days=31)).replace(day=1) - timedelta(days=1)
         
-        # Dados de vendas mock
-        mock_sales = random.randint(5000, 20000) if i != 1 else float(monthly_revenue) # Mês atual usa o valor real
-        sales_trend_data.append(round(mock_sales, 2))
+        sales_in_month = Sale.objects.filter(data_venda__range=[month_start, month_end]).aggregate(total=Sum('preco_final'))['total'] or 0
+        sales_trend_data.append(round(float(sales_in_month), 2))
 
-        # Dados de conversão mock
-        mock_conversion = random.uniform(2.0, 8.0) if i != 1 else round(conversion_rate, 2) # Mês atual usa o valor real
-        conversion_trend_data.append(round(mock_conversion, 2))
+        total_leads_in_month = LeadInteraction.objects.filter(data_interacao__range=[month_start, month_end]).count()
+        converted_leads_in_month = LeadInteraction.objects.filter(data_interacao__range=[month_start, month_end], status='Fechado - Ganho').count()
         
-        months_labels.append(month_start.strftime('%b').lower()) # Ex: 'jan', 'fev'
+        conversion_rate_in_month = (converted_leads_in_month / total_leads_in_month * 100) if total_leads_in_month > 0 else 0
+        conversion_trend_data.append(round(conversion_rate_in_month, 2))
+        
+        months_labels.append(month_start.strftime('%b/%Y'))
     
     return {
         'total_cars': total_cars,
@@ -253,10 +254,10 @@ def get_admin_dashboard_data():
         'active_customers_this_month': active_customers_this_month,
         'conversion_rate_this_month': round(conversion_rate, 2),
 
-        'sales_trend_labels': months_labels,
-        'sales_trend_data': sales_trend_data,
-        'conversion_trend_labels': months_labels,
-        'conversion_trend_data': conversion_trend_data,
+        'sales_trend_labels': json.dumps(months_labels),
+        'sales_trend_data': json.dumps(sales_trend_data),
+        'conversion_trend_labels': json.dumps(months_labels),
+        'conversion_trend_data': json.dumps(conversion_trend_data),
     }
 
 @method_decorator(login_required, name='dispatch')
@@ -582,45 +583,23 @@ def lead_interaction_detail_and_update(request, pk):
     if request.method == 'POST':
         form = LeadInteractionForm(request.POST, instance=lead_interaction)
         if form.is_valid():
-            if form.cleaned_data['status'] == 'Fechado - Ganho':
+            lead_instance = form.save(commit=False)
+
+            if lead_instance.status == 'Fechado - Ganho' and lead_interaction.status != 'Fechado - Ganho':
                 car = lead_interaction.carro
                 car.disponivel = False
                 car.status_veiculo = 'Vendido'
                 car.save()
-                messages.info(request, f"Carro '{car.modelo}' atualizado para indisponível (Vendido)!")
 
-            form.save()
-            messages.success(request, 'Status da interação atualizado com sucesso!')
-            return redirect('lead_interaction_list')
-    else:
-        form = LeadInteractionForm(instance=lead_interaction)
-    
-    context = {
-        'lead_interaction': lead_interaction,
-        'form': form,
-    }
-    return render(request, 'cars/lead_interaction_detail.html', context)
+                Sale.objects.create(
+                    carro=car,
+                    cliente=lead_interaction.cliente,
+                    preco_final=car.preco,
+                    data_venda=timezone.now()
+                )
+                messages.info(request, f"Venda do carro '{car.modelo}' registrada com sucesso!")
 
-@login_required
-def lead_interaction_detail_and_update(request, pk):
-    lead_interaction = get_object_or_404(LeadInteraction, pk=pk)
-
-    user = request.user
-    if lead_interaction.vendedor != user and not (user.is_superuser or user.groups.filter(name__in=['Administradores', 'Gerentes']).exists()):
-        messages.error(request, "Você não tem permissão para acessar este lead.")
-        return redirect('lead_interaction_list')
-
-    if request.method == 'POST':
-        form = LeadInteractionForm(request.POST, instance=lead_interaction)
-        if form.is_valid():
-            if form.cleaned_data['status'] == 'Fechado - Ganho':
-                car = lead_interaction.carro
-                car.disponivel = False
-                car.status_veiculo = 'Vendido'
-                car.save()
-                messages.info(request, f"Carro '{car.modelo}' atualizado para indisponível (Vendido)!")
-
-            form.save()
+            lead_instance.save()
             messages.success(request, 'Status da interação atualizado com sucesso!')
             return redirect('lead_interaction_list')
     else:
@@ -938,7 +917,7 @@ class DashboardHomeView(LoginRequiredMixin, TemplateView):
             context['seller_total_sales_count'] = seller_sales.count()
             context['seller_total_sales_revenue'] = seller_sales.aggregate(total=Sum('preco_final'))['total'] or 0
 
-            seller_monthly_sales = seller_sales.filter(data_venda__date__gte=start_of_month, data_venda__date__lte=today)
+            seller_monthly_sales = seller_sales.filter(data_venda__gte=start_of_month, data_venda__lte=today)
             context['seller_monthly_sales_count'] = seller_monthly_sales.count()
             context['seller_monthly_revenue'] = seller_monthly_sales.aggregate(total=Sum('preco_final'))['total'] or 0
 
